@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+/* ============================================
+   DASHBOARD ENTERPRISE - DESIGN SYSTEM
+   Plantilla adaptable multi-industria
+   Soporte completo Dark / Light mode
+   ============================================ */
+
+@theme {
+  --color-brand-50: #FFFBEB;
+  --color-brand-100: #FEF3C7;
+  --color-brand-200: #FDE68A;
+  --color-brand-300: #FCD34D;
+  --color-brand-400: #FBBF24;
+  --color-brand-500: #F59E0B;
+  --color-brand-600: #D97706;
+  --color-brand-700: #B45309;
+  --color-brand-800: #92400E;
+  --color-brand-900: #78350F;
+
+  --color-status-success: #10B981;
+  --color-status-warning: #F59E0B;
+  --color-status-error: #EF4444;
+  --color-status-info: #3B82F6;
+
+  --color-chart-1: #F59E0B;
+  --color-chart-2: #3B82F6;
+  --color-chart-3: #10B981;
+  --color-chart-4: #8B5CF6;
+  --color-chart-5: #EC4899;
+  --color-chart-6: #06B6D4;
+
+  --spacing-sidebar: 240px;
+  --radius-card: 12px;
+  --radius-button: 10px;
+  --radius-input: 10px;
+  --radius-badge: 6px;
+
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+}
+
+/* ============================================
+   DARK THEME (default)
+   ============================================ */
+:root, .dark {
+  --color-dashboard-bg: #0F172A;
+  --color-dashboard-surface: #1E293B;
+  --color-dashboard-surface-hover: #334155;
+  --color-dashboard-border: #334155;
+  --color-dashboard-sidebar: #1A1A2E;
+  --color-text-primary: #F9FAFB;
+  --color-text-secondary: #94A3B8;
+  --color-text-muted: #64748B;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-dropdown: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================
+   LIGHT THEME
+   ============================================ */
+.light {
+  --color-dashboard-bg: #F8FAFC;
+  --color-dashboard-surface: #FFFFFF;
+  --color-dashboard-surface-hover: #F1F5F9;
+  --color-dashboard-border: #E2E8F0;
+  --color-dashboard-sidebar: #FFFFFF;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94A3B8;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-dropdown: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-dashboard-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-dashboard-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+
+/* WCAG 2.2 - Focus visible */
+:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* WCAG 2.1 - Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* WCAG 2.2 - Minimum target size (2.5.8 Nivel AAA) */
+@media (pointer: coarse) {
+  button, a, [role="button"], input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* WCAG 2.2 - Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
