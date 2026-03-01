@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  industry  String   @default("general")
+  currency  String   @default("GTQ")
+  logo      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  categories Category[]
+  products   Product[]
+  sales      Sale[]
+  purchases  Purchase[]
+  orders     Order[]
+  profiles   Profile[]
+  notifications Notification[]
+
+  @@map("tenants")
+}
+
+model Profile {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  role      String   @default("admin")
+  avatarUrl String?  @map("avatar_url")
+  tenantId  String   @map("tenant_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  sales  Sale[]
+
+  @@map("profiles")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  tenantId  String   @map("tenant_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Float
+  cost        Float
+  stock       Int      @default(0)
+  minStock    Int      @default(5) @map("min_stock")
+  categoryId  String   @map("category_id")
+  images      String[] @default([])
+  isActive    Boolean  @default(true) @map("is_active")
+  isOffer     Boolean  @default(false) @map("is_offer")
+  offerPrice  Float?   @map("offer_price")
+  brand       String?
+  color       String?
+  tags        String[] @default([])
+  tenantId    String   @map("tenant_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
+  category   Category    @relation(fields: [categoryId], references: [id])
+  sales      Sale[]
+  purchases  Purchase[]
+  orderItems OrderItem[]
+
+  @@map("products")
+}
+
+model Sale {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  quantity  Int
+  unitPrice Float    @map("unit_price")
+  total     Float
+  date      DateTime @default(now())
+  userId    String?  @map("user_id")
+  tenantId  String   @map("tenant_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant  Tenant   @relation(fields: [tenantId], references: [id])
+  product Product  @relation(fields: [productId], references: [id])
+  user    Profile? @relation(fields: [userId], references: [id])
+
+  @@map("sales")
+}
+
+model Purchase {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  quantity  Int
+  unitCost  Float    @map("unit_cost")
+  total     Float
+  supplier  String?
+  date      DateTime @default(now())
+  tenantId  String   @map("tenant_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("purchases")
+}
+
+model Order {
+  id              String   @id @default(uuid())
+  clientName      String   @map("client_name")
+  clientEmail     String?  @map("client_email")
+  deliveryAddress String?  @map("delivery_address")
+  subtotal        Float
+  shipping        Float    @default(0)
+  total           Float
+  status          String   @default("pendiente")
+  date            DateTime @default(now())
+  tenantId        String   @map("tenant_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  tenant Tenant      @relation(fields: [tenantId], references: [id])
+  items  OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String @map("order_id")
+  productId String @map("product_id")
+  quantity  Int
+  unitPrice Float  @map("unit_price")
+  subtotal  Float
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  title     String
+  message   String
+  type      String   @default("info") // warning | info | success | order | error
+  read      Boolean  @default(false)
+  href      String?
+  tenantId  String   @map("tenant_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@map("notifications")
+}
