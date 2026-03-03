@@ -1,0 +1,297 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  industry  String   @default("general")
+  currency  String   @default("USD")
+  logo      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  categories      Category[]
+  products        Product[]
+  sales           Sale[]
+  purchases       Purchase[]
+  orders          Order[]
+  profiles        Profile[]
+  notifications   Notification[]
+  businessProfile BusinessProfile?
+  customers       Customer[]
+  invoices        Invoice[]
+
+  @@map("tenants")
+}
+
+model Profile {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  role      String   @default("admin")
+  avatarUrl String?  @map("avatar_url")
+  tenantId  String   @map("tenant_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  sales  Sale[]
+
+  @@map("profiles")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  tenantId  String   @map("tenant_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  code        String?  @db.VarChar(25)
+  name        String
+  description String?
+  price       Float
+  cost        Float
+  stock       Int      @default(0)
+  minStock    Int      @default(5) @map("min_stock")
+  categoryId  String   @map("category_id")
+  images      String[] @default([])
+  isActive    Boolean  @default(true) @map("is_active")
+  isOffer     Boolean  @default(false) @map("is_offer")
+  offerPrice  Float?   @map("offer_price")
+  brand       String?
+  color       String?
+  tags        String[] @default([])
+  tenantId    String   @map("tenant_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
+  category   Category    @relation(fields: [categoryId], references: [id])
+  sales      Sale[]
+  purchases  Purchase[]
+  orderItems OrderItem[]
+
+  @@map("products")
+}
+
+model Sale {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  quantity  Int
+  unitPrice Float    @map("unit_price")
+  total     Float
+  date      DateTime @default(now())
+  userId    String?  @map("user_id")
+  tenantId  String   @map("tenant_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant  Tenant   @relation(fields: [tenantId], references: [id])
+  product Product  @relation(fields: [productId], references: [id])
+  user    Profile? @relation(fields: [userId], references: [id])
+
+  @@map("sales")
+}
+
+model Purchase {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  quantity  Int
+  unitCost  Float    @map("unit_cost")
+  total     Float
+  supplier  String?
+  date      DateTime @default(now())
+  tenantId  String   @map("tenant_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("purchases")
+}
+
+model Order {
+  id              String   @id @default(uuid())
+  clientName      String   @map("client_name")
+  clientEmail     String?  @map("client_email")
+  deliveryAddress String?  @map("delivery_address")
+  subtotal        Float
+  shipping        Float    @default(0)
+  total           Float
+  status          String   @default("pendiente")
+  date            DateTime @default(now())
+  tenantId        String   @map("tenant_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  tenant Tenant      @relation(fields: [tenantId], references: [id])
+  items  OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String @map("order_id")
+  productId String @map("product_id")
+  quantity  Int
+  unitPrice Float  @map("unit_price")
+  subtotal  Float
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  title     String
+  message   String
+  type      String   @default("info")
+  read      Boolean  @default(false)
+  href      String?
+  tenantId  String   @map("tenant_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@map("notifications")
+}
+
+// ============================================
+// BILLING MODULE — SRI Ecuador Compliant
+// ============================================
+
+model BusinessProfile {
+  id                    String  @id @default(uuid())
+  tenantId              String  @unique @map("tenant_id")
+  ruc                   String  @db.VarChar(13)
+  razonSocial           String  @map("razon_social") @db.VarChar(300)
+  nombreComercial       String? @map("nombre_comercial") @db.VarChar(300)
+  direccionMatriz       String  @map("direccion_matriz") @db.VarChar(300)
+  direccionSucursal     String? @map("direccion_sucursal") @db.VarChar(300)
+  telefono              String? @db.VarChar(20)
+  email                 String? @db.VarChar(255)
+  website               String? @db.VarChar(255)
+  logoUrl               String? @map("logo_url") @db.Text
+  ambiente              String  @default("PRUEBAS") @db.VarChar(20)
+  tipoEmision           String  @default("NORMAL") @map("tipo_emision") @db.VarChar(20)
+  obligadoContabilidad  Boolean @default(false) @map("obligado_contabilidad")
+  contribuyenteEspecial String? @map("contribuyente_especial") @db.VarChar(13)
+  regimenRimpe          Boolean @default(false) @map("regimen_rimpe")
+  ivaRate               Float   @default(15) @map("iva_rate")
+  establishment         String  @default("001") @db.VarChar(3)
+  emissionPoint         String  @default("001") @map("emission_point") @db.VarChar(3)
+  currentSequential     Int     @default(0) @map("current_sequential")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  invoices Invoice[]
+
+  @@map("business_profiles")
+}
+
+model Customer {
+  id                 String   @id @default(uuid())
+  tenantId           String   @map("tenant_id")
+  tipoIdentificacion String   @default("05") @map("tipo_identificacion") @db.VarChar(2)
+  identificacion     String   @db.VarChar(20)
+  razonSocial        String   @map("razon_social") @db.VarChar(300)
+  direccion          String?  @db.VarChar(300)
+  telefono           String?  @db.VarChar(20)
+  email              String?  @db.VarChar(255)
+  isActive           Boolean  @default(true) @map("is_active")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  invoices Invoice[]
+
+  @@unique([tenantId, identificacion])
+  @@map("customers")
+}
+
+model Invoice {
+  id                   String   @id @default(uuid())
+  tenantId             String   @map("tenant_id")
+  businessProfileId    String   @map("business_profile_id")
+  customerId           String   @map("customer_id")
+  invoiceNumber        String   @map("invoice_number") @db.VarChar(17)
+  establishment        String   @default("001") @db.VarChar(3)
+  emissionPoint        String   @default("001") @map("emission_point") @db.VarChar(3)
+  sequential           Int
+  claveAcceso          String?  @map("clave_acceso") @db.VarChar(49)
+  numeroAutorizacion   String?  @map("numero_autorizacion") @db.VarChar(49)
+  fechaEmision         DateTime @map("fecha_emision")
+  fechaAutorizacion    DateTime? @map("fecha_autorizacion")
+  ambiente             String   @default("PRUEBAS") @db.VarChar(20)
+  tipoEmision          String   @default("NORMAL") @map("tipo_emision") @db.VarChar(20)
+  subtotalSinImpuestos Float    @default(0) @map("subtotal_sin_impuestos")
+  subtotal15           Float    @default(0) @map("subtotal_15")
+  subtotal0            Float    @default(0) @map("subtotal_0")
+  subtotalNoObjeto     Float    @default(0) @map("subtotal_no_objeto")
+  subtotalExento       Float    @default(0) @map("subtotal_exento")
+  totalDescuento       Float    @default(0) @map("total_descuento")
+  ice                  Float    @default(0)
+  iva15                Float    @default(0) @map("iva_15")
+  irbpnr               Float    @default(0)
+  propina              Float    @default(0)
+  importeTotal         Float    @default(0) @map("importe_total")
+  formaPago            String   @default("01") @map("forma_pago") @db.VarChar(2)
+  formaPagoDescripcion String?  @map("forma_pago_descripcion") @db.VarChar(100)
+  plazo                Int      @default(0)
+  estado               String   @default("CREADA") @db.VarChar(20)
+  xmlGenerado          String?  @map("xml_generado") @db.Text
+  emailSent            Boolean  @default(false) @map("email_sent")
+  emailSentAt          DateTime? @map("email_sent_at")
+  notes                String?  @db.Text
+  orderId              String?  @unique @map("order_id")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  tenant          Tenant          @relation(fields: [tenantId], references: [id])
+  businessProfile BusinessProfile @relation(fields: [businessProfileId], references: [id])
+  customer        Customer        @relation(fields: [customerId], references: [id])
+  items           InvoiceItem[]
+
+  @@unique([tenantId, establishment, emissionPoint, sequential])
+  @@index([claveAcceso])
+  @@index([fechaEmision])
+  @@index([estado])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id                     String @id @default(uuid())
+  invoiceId              String @map("invoice_id")
+  codigoPrincipal        String @map("codigo_principal") @db.VarChar(25)
+  codigoAuxiliar         String? @map("codigo_auxiliar") @db.VarChar(25)
+  descripcion            String @db.VarChar(300)
+  cantidad               Float
+  precioUnitario         Float  @map("precio_unitario")
+  descuento              Float  @default(0)
+  precioTotalSinImpuesto Float  @map("precio_total_sin_impuesto")
+  ivaCode                String @default("4") @map("iva_code") @db.VarChar(5)
+  ivaTarifa              Float  @default(15) @map("iva_tarifa")
+  ivaBaseImponible       Float  @default(0) @map("iva_base_imponible")
+  ivaValor               Float  @default(0) @map("iva_valor")
+  orden                  Int    @default(0)
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@map("invoice_items")
+}

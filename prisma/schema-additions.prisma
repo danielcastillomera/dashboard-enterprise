@@ -1,0 +1,196 @@
+// ============================================
+// PHASE 13 — SCHEMA ADDITIONS
+// Add these models to your existing schema.prisma
+// ============================================
+
+// ---- ADD TO EXISTING Product MODEL ----
+// Add this field after existing fields:
+//   sku       String?  @unique
+//   code      String?  // Código auxiliar para facturación
+
+// ---- NEW: Client Model ----
+model Client {
+  id            String   @id @default(uuid())
+  name          String
+  tradeName     String?  @map("trade_name")      // Nombre comercial
+  taxId         String   @map("tax_id")           // NIT / RUC / Cédula
+  taxIdType     String   @default("NIT") @map("tax_id_type") // NIT, RUC, CEDULA, PASAPORTE, CF
+  email         String?
+  phone         String?
+  address       String?
+  city          String?
+  state         String?
+  country       String   @default("GT")
+  notes         String?
+  isActive      Boolean  @default(true) @map("is_active")
+  tenantId      String   @map("tenant_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  invoices  Invoice[]
+
+  @@unique([taxId, tenantId])
+  @@map("clients")
+}
+
+// ---- NEW: Invoice Model ----
+model Invoice {
+  id                  String   @id @default(uuid())
+  invoiceNumber       String   @map("invoice_number")       // FAC-001-001-000000001
+  series              String   @default("FAC")               // FAC, NC, ND
+  establishment       String   @default("001")               // Código establecimiento
+  emissionPoint       String   @default("001") @map("emission_point") // Punto de emisión
+  sequential          Int                                     // Número secuencial
+  
+  // Dates
+  issueDate           DateTime @default(now()) @map("issue_date")
+  dueDate             DateTime? @map("due_date")
+  
+  // Client data (denormalized for historical accuracy)
+  clientId            String?  @map("client_id")
+  clientName          String   @map("client_name")
+  clientTaxId         String   @map("client_tax_id")
+  clientTaxIdType     String   @default("NIT") @map("client_tax_id_type")
+  clientAddress       String?  @map("client_address")
+  clientPhone         String?  @map("client_phone")
+  clientEmail         String?  @map("client_email")
+  
+  // Totals
+  subtotal            Float    @default(0)
+  subtotalTaxable     Float    @default(0) @map("subtotal_taxable")    // Gravado
+  subtotalExempt      Float    @default(0) @map("subtotal_exempt")     // Exento
+  totalDiscount       Float    @default(0) @map("total_discount")
+  taxAmount           Float    @default(0) @map("tax_amount")          // IVA total
+  taxRate             Float    @default(12) @map("tax_rate")           // % IVA (12 GT, 15 EC)
+  total               Float    @default(0)
+  currency            String   @default("GTQ")
+  
+  // Payment
+  paymentMethod       String?  @map("payment_method")  // EFECTIVO, TARJETA_CREDITO, TRANSFERENCIA, etc.
+  paymentTerms        String?  @map("payment_terms")   // Contado, 30 días, etc.
+  
+  // Status & Authorization
+  status              String   @default("DRAFT")  // DRAFT, ISSUED, SENT, PAID, CANCELLED, VOIDED
+  authorizationNumber String?  @map("authorization_number") // Clave de acceso / UUID SAT
+  environment         String   @default("PRODUCTION") // TESTING, PRODUCTION
+  
+  // Additional info
+  notes               String?
+  internalNotes       String?  @map("internal_notes")
+  additionalInfo      Json?    @map("additional_info") // Key-value pairs (email, phone, etc.)
+  
+  // File references
+  pdfUrl              String?  @map("pdf_url")
+  xmlUrl              String?  @map("xml_url")
+  emailSentAt         DateTime? @map("email_sent_at")
+  
+  // Relations
+  tenantId            String   @map("tenant_id")
+  createdBy           String?  @map("created_by")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  tenant   Tenant        @relation(fields: [tenantId], references: [id])
+  client   Client?       @relation(fields: [clientId], references: [id])
+  items    InvoiceItem[]
+
+  @@unique([series, establishment, emissionPoint, sequential, tenantId])
+  @@index([tenantId, status])
+  @@index([tenantId, issueDate])
+  @@index([clientId])
+  @@map("invoices")
+}
+
+// ---- NEW: InvoiceItem Model ----
+model InvoiceItem {
+  id            String  @id @default(uuid())
+  invoiceId     String  @map("invoice_id")
+  lineNumber    Int     @map("line_number")
+  
+  // Product reference (optional - can be manual entry)
+  productId     String? @map("product_id")
+  productCode   String? @map("product_code")   // SKU o código principal
+  auxCode       String? @map("aux_code")       // Código auxiliar
+  
+  // Item details
+  description   String
+  quantity      Float
+  unitPrice     Float   @map("unit_price")
+  discount      Float   @default(0)
+  subtotal      Float                            // quantity * unitPrice - discount
+  
+  // Tax per item
+  taxable       Boolean @default(true)
+  taxRate       Float   @default(12) @map("tax_rate")
+  taxAmount     Float   @default(0) @map("tax_amount")
+  total         Float                            // subtotal + taxAmount
+  
+  // Additional details (like Multicines: Detalle Adicional columns)
+  additionalDetail1 String? @map("additional_detail_1")
+  additionalDetail2 String? @map("additional_detail_2")
+  additionalDetail3 String? @map("additional_detail_3")
+
+  invoice  Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@map("invoice_items")
+}
+
+// ---- NEW: BusinessSettings Model ----
+model BusinessSettings {
+  id                  String  @id @default(uuid())
+  tenantId            String  @unique @map("tenant_id")
+  
+  // Company identity
+  legalName           String  @map("legal_name")         // Razón social
+  tradeName           String? @map("trade_name")         // Nombre comercial
+  taxId               String  @map("tax_id")             // NIT / RUC
+  taxIdType           String  @default("NIT") @map("tax_id_type")
+  specialTaxpayer     String? @map("special_taxpayer")   // Contribuyente Especial No.
+  accountingRequired  Boolean @default(false) @map("accounting_required") // Obligado a llevar contabilidad
+  
+  // Contact
+  email               String?
+  phone               String?
+  website             String?
+  
+  // Address
+  mainAddress         String? @map("main_address")       // Dirección matriz
+  branchAddress       String? @map("branch_address")     // Dirección sucursal
+  city                String?
+  state               String?
+  country             String  @default("GT")
+  
+  // Branding
+  logoUrl             String? @map("logo_url")           // URL in Supabase Storage
+  primaryColor        String  @default("#F59E0B") @map("primary_color")
+  
+  // Invoice defaults
+  defaultCurrency     String  @default("GTQ") @map("default_currency")
+  defaultTaxRate      Float   @default(12) @map("default_tax_rate")   // 12% GT, 15% EC
+  defaultPaymentTerms String  @default("Contado") @map("default_payment_terms")
+  invoiceSeries       String  @default("FAC") @map("invoice_series")
+  establishmentCode   String  @default("001") @map("establishment_code")
+  emissionPointCode   String  @default("001") @map("emission_point_code")
+  nextSequential      Int     @default(1) @map("next_sequential")
+  
+  // Email settings
+  emailFromName       String? @map("email_from_name")     // "Mi Empresa S.A."
+  emailFooterText     String? @map("email_footer_text")   // Aviso de privacidad
+  socialLinks         Json?   @map("social_links")        // { linkedin, instagram, youtube, etc. }
+  
+  // Metadata
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@map("business_settings")
+}
+
+// ---- ADD TO EXISTING Tenant MODEL ----
+// Add these relations:
+//   clients          Client[]
+//   invoices         Invoice[]
+//   businessSettings BusinessSettings?
