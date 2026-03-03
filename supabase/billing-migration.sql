@@ -1,15 +1,13 @@
 /* ============================================
-   BILLING MODULE MIGRATION - v2.1.0
-   Ejecutar en: Supabase Dashboard > SQL Editor
-   
-   NOTA: tenants.id es tipo TEXT, por eso 
-   todas las FK usan TEXT (no UUID)
+   BILLING MODULE MIGRATION — FIXED
+   Ejecutar en: Supabase Dashboard → SQL Editor
+   Nota: tenants.id es TEXT, no UUID
    ============================================ */
 
--- 1. Add code column to products if not exists
+-- Add code column to products if not exists
 ALTER TABLE products ADD COLUMN IF NOT EXISTS code VARCHAR(25);
 
--- 2. Create customers table
+-- Create customers table (tenant_id is TEXT to match tenants.id)
 CREATE TABLE IF NOT EXISTS customers (
   id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
   tenant_id TEXT NOT NULL REFERENCES tenants(id),
@@ -25,7 +23,7 @@ CREATE TABLE IF NOT EXISTS customers (
   UNIQUE(tenant_id, identificacion)
 );
 
--- 3. Update business_profiles - add SRI columns
+-- Update business_profiles to SRI format
 ALTER TABLE business_profiles ADD COLUMN IF NOT EXISTS ruc VARCHAR(13);
 ALTER TABLE business_profiles ADD COLUMN IF NOT EXISTS razon_social VARCHAR(300);
 ALTER TABLE business_profiles ADD COLUMN IF NOT EXISTS nombre_comercial VARCHAR(300);
@@ -40,11 +38,24 @@ ALTER TABLE business_profiles ADD COLUMN IF NOT EXISTS regimen_rimpe BOOLEAN DEF
 ALTER TABLE business_profiles ADD COLUMN IF NOT EXISTS iva_rate FLOAT DEFAULT 15;
 ALTER TABLE business_profiles ADD COLUMN IF NOT EXISTS current_sequential INTEGER DEFAULT 0;
 
--- 4. Drop old invoice tables and recreate
+-- Migrate old columns if they exist
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='business_profiles' AND column_name='business_name') THEN
+    UPDATE business_profiles SET razon_social = business_name WHERE razon_social IS NULL;
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='business_profiles' AND column_name='tax_id') THEN
+    UPDATE business_profiles SET ruc = tax_id WHERE ruc IS NULL;
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='business_profiles' AND column_name='address') THEN
+    UPDATE business_profiles SET direccion_matriz = address WHERE direccion_matriz IS NULL;
+  END IF;
+END $$;
+
+-- Drop old invoice tables and recreate
 DROP TABLE IF EXISTS invoice_items CASCADE;
 DROP TABLE IF EXISTS invoices CASCADE;
 
--- 5. Create invoices table (SRI compliant)
+-- Create invoices table (SRI compliant, all FKs as TEXT)
 CREATE TABLE invoices (
   id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
   tenant_id TEXT NOT NULL REFERENCES tenants(id),
@@ -88,9 +99,8 @@ CREATE TABLE invoices (
 CREATE INDEX idx_invoices_clave ON invoices(clave_acceso);
 CREATE INDEX idx_invoices_fecha ON invoices(fecha_emision);
 CREATE INDEX idx_invoices_estado ON invoices(estado);
-CREATE INDEX idx_invoices_customer ON invoices(customer_id);
 
--- 6. Create invoice_items table (SRI compliant)
+-- Create invoice_items table (SRI compliant)
 CREATE TABLE invoice_items (
   id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
   invoice_id TEXT NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
@@ -110,33 +120,27 @@ CREATE TABLE invoice_items (
 
 CREATE INDEX idx_invoice_items_invoice ON invoice_items(invoice_id);
 
--- 7. Enable RLS
+-- Enable RLS
 ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE invoice_items ENABLE ROW LEVEL SECURITY;
 
--- 8. RLS Policies
-DROP POLICY IF EXISTS "customers_tenant_policy" ON customers;
-DROP POLICY IF EXISTS "invoices_tenant_policy" ON invoices;
-DROP POLICY IF EXISTS "invoice_items_tenant_policy" ON invoice_items;
+-- RLS Policies (drop first if exist to avoid conflicts)
+DROP POLICY IF EXISTS "customers_tenant" ON customers;
+DROP POLICY IF EXISTS "invoices_tenant" ON invoices;
+DROP POLICY IF EXISTS "invoice_items_tenant" ON invoice_items;
 
-CREATE POLICY "customers_tenant_policy" ON customers
-  FOR ALL USING (
-    tenant_id IN (SELECT tenant_id FROM profiles WHERE id = auth.uid()::text)
-  );
+CREATE POLICY "customers_tenant" ON customers
+  FOR ALL USING (tenant_id IN (SELECT tenant_id FROM profiles WHERE id = auth.uid()::text));
 
-CREATE POLICY "invoices_tenant_policy" ON invoices
-  FOR ALL USING (
-    tenant_id IN (SELECT tenant_id FROM profiles WHERE id = auth.uid()::text)
-  );
+CREATE POLICY "invoices_tenant" ON invoices
+  FOR ALL USING (tenant_id IN (SELECT tenant_id FROM profiles WHERE id = auth.uid()::text));
 
-CREATE POLICY "invoice_items_tenant_policy" ON invoice_items
-  FOR ALL USING (
-    invoice_id IN (
-      SELECT id FROM invoices WHERE tenant_id IN (
-        SELECT tenant_id FROM profiles WHERE id = auth.uid()::text
-      )
+CREATE POLICY "invoice_items_tenant" ON invoice_items
+  FOR ALL USING (invoice_id IN (
+    SELECT id FROM invoices WHERE tenant_id IN (
+      SELECT tenant_id FROM profiles WHERE id = auth.uid()::text
     )
-  );
+  ));
 
-SELECT 'Billing migration v2.1.0 complete' as result;
+SELECT 'Billing migration complete ✅' as result;

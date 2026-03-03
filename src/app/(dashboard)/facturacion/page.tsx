@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import useSWR, { mutate } from "swr";
 import {
   FileText, Plus, Search, Eye, Download, Mail, X,
@@ -21,12 +21,13 @@ interface Invoice {
 }
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
+const productsFetcher = (url: string) => fetch(url).then(r => r.json()).then(data => data?.products || []);
 
 export default function FacturacionPage() {
   const { data: invoices = [] } = useSWR<Invoice[]>("/api/invoices", fetcher);
   const { data: stats } = useSWR("/api/invoices?stats=true", fetcher);
   const { data: customers = [] } = useSWR<Customer[]>("/api/customers", fetcher);
-  const { data: products = [] } = useSWR<Product[]>("/api/products", fetcher);
+  const { data: products = [] } = useSWR<Product[]>("/api/products", productsFetcher);
   const { addToast } = useToast();
 
   const [showForm, setShowForm] = useState(false);

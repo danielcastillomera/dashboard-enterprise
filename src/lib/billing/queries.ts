@@ -19,14 +19,14 @@ export async function getCustomer(id: string) {
 
 export async function createCustomer(tenantId: string, data: {
   tipoIdentificacion: string; identificacion: string; razonSocial: string;
-  direccion?: string; telefono?: string; email?: string;
+  direccion: string; telefono?: string; celular: string; email: string;
 }) {
   return prisma.customer.create({ data: { ...data, tenantId } });
 }
 
 export async function updateCustomer(id: string, data: {
   tipoIdentificacion?: string; identificacion?: string; razonSocial?: string;
-  direccion?: string; telefono?: string; email?: string;
+  direccion?: string; telefono?: string; celular?: string; email?: string;
 }) {
   return prisma.customer.update({ where: { id }, data });
 }

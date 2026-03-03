@@ -10,13 +10,13 @@ import { TenantConfig, ModuleConfig } from "@/types";
 
 const ALL_MODULES: ModuleConfig[] = [
   { id: "panel", name: "Panel de Control", enabled: true, icon: "Home", path: "/panel" },
-  { id: "ventas", name: "Ventas", enabled: true, icon: "ShoppingCart", path: "/ventas" },
-  { id: "compras", name: "Compras", enabled: true, icon: "Package", path: "/compras" },
-  { id: "inventario", name: "Inventario", enabled: true, icon: "Boxes", path: "/inventario" },
-  { id: "pedidos", name: "Pedidos Online", enabled: true, icon: "Truck", path: "/pedidos" },
-  { id: "facturacion", name: "Facturación", enabled: true, icon: "FileText", path: "/facturacion" },
   { id: "clientes", name: "Clientes", enabled: true, icon: "Users", path: "/clientes" },
+  { id: "compras", name: "Compras", enabled: true, icon: "Package", path: "/compras" },
+  { id: "ventas", name: "Ventas", enabled: true, icon: "ShoppingCart", path: "/ventas" },
+  { id: "pedidos", name: "Pedidos Online", enabled: true, icon: "Truck", path: "/pedidos" },
   { id: "productos", name: "Productos", enabled: true, icon: "Tag", path: "/productos" },
+  { id: "inventario", name: "Inventario", enabled: true, icon: "Boxes", path: "/inventario" },
+  { id: "facturacion", name: "Facturación", enabled: true, icon: "FileText", path: "/facturacion" },
   { id: "reportes", name: "Reportes", enabled: true, icon: "BarChart3", path: "/reportes" },
   { id: "configuracion", name: "Configuración", enabled: true, icon: "Settings", path: "/configuracion" },
 ];

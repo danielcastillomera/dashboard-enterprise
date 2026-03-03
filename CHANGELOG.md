@@ -1,5 +1,27 @@
 # Changelog
 
+## v2.1.1 — Hotfix: Clientes + Facturación + UX
+
+### Bug Fixes
+- **Fixed client-side crash** on "Nueva Factura" — products API returns `{products, categories}` but code expected array
+- **Disabled browser autocomplete** on all client forms — prevents personal data leakage via autofill
+- **Fixed sidebar order** — Panel, Clientes, Compras, Ventas, Pedidos, Productos, Inventario, Facturación, Reportes, Configuración
+
+### New Features
+- **Campo Celular Ecuador** — Separate field for mobile numbers (10 dígitos, inicia con 09)
+- **Teléfono Fijo Ecuador** — Validated field (9 dígitos, código de área 02/03/04/05/06/07)
+- **Real-time phone formatting** — Displays formatted as user types (0991 234 567)
+- **Ecuador ID validation** — Cédula (10 digits), RUC (13 digits), Pasaporte (5+ chars)
+- **All fields required** in client form — Tipo ID, Identificación, Razón Social, Dirección, Celular, Email
+- **Responsive mobile cards** — Client list shows cards on mobile, table on desktop
+- **Form validation with error messages** — Per-field error indicators and descriptions
+
+### Database Changes
+- Added `celular` column (VARCHAR 15) to customers table
+- Migration: `supabase/patch-v2.1.1-celular.sql`
+
+---
+
 ## v2.1.0 — Phase 13: Billing Module (SRI Ecuador)
 
 ### New Features
