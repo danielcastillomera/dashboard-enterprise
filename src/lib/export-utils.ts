@@ -3,7 +3,7 @@
    Estándar enterprise: Stripe, Shopify
    
    - CSV: Nativo con BOM para Excel
-   - PDF: jsPDF + jspdf-autotable
+   - PDF: jsPDF + jspdf-autotable con cabecera empresarial
    ============================================ */
 
 /** Exportar datos a CSV con compatibilidad Excel (UTF-8 BOM) */
@@ -33,12 +33,24 @@ export function exportToCSV<T extends Record<string, unknown>>(
   downloadBlob(blob, `${filename}.csv`);
 }
 
-/** Exportar datos a PDF con jsPDF */
+interface PDFOptions {
+  /** URL del logo empresarial (base64 o URL pública) */
+  logoUrl?: string;
+  /** Nombre de la empresa */
+  companyName?: string;
+  /** Detalles de la empresa (RUC, dirección, etc.) */
+  companyDetails?: string;
+  /** Color principal de la marca en formato [R, G, B] (default: dorado) */
+  brandColor?: [number, number, number];
+}
+
+/** Exportar datos a PDF con jsPDF — cabecera empresarial profesional */
 export async function exportToPDF<T extends Record<string, unknown>>(
   data: T[],
   columns: { key: string; header: string }[],
   title: string,
-  filename: string
+  filename: string,
+  opts: PDFOptions = {}
 ): Promise<void> {
   if (data.length === 0) return;
 
@@ -46,23 +58,49 @@ export async function exportToPDF<T extends Record<string, unknown>>(
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
 
-  const doc = new jsPDF();
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 14;
+  const brandColor: [number, number, number] = opts.brandColor ?? [245, 158, 11];
+  const darkColor: [number, number, number] = [30, 41, 59];
 
-  // Título
-  doc.setFontSize(16);
-  doc.setTextColor(40);
-  doc.text(title, 14, 20);
+  // ---- HEADER BAND ----
+  doc.setFillColor(...darkColor);
+  doc.rect(0, 0, pageW, 28, "F");
 
-  // Fecha de generación
-  doc.setFontSize(9);
-  doc.setTextColor(128);
-  doc.text(
-    `Generado: ${new Date().toLocaleDateString("es-EC")} ${new Date().toLocaleTimeString("es-EC")}`,
-    14,
-    28
-  );
+  // Company name
+  doc.setFontSize(13);
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.text(opts.companyName || "Dashboard Enterprise", margin, 12);
 
-  // Tabla
+  // Company details
+  if (opts.companyDetails) {
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(148, 163, 184);
+    doc.text(opts.companyDetails, margin, 19);
+  }
+
+  // Brand accent stripe
+  doc.setFillColor(...brandColor);
+  doc.rect(0, 28, pageW, 3, "F");
+
+  // ---- DOCUMENT TITLE ----
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(...darkColor);
+  doc.text(title, margin, 44);
+
+  // Generated date
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(100, 116, 139);
+  const genDate = `Generado: ${new Date().toLocaleDateString("es-EC")} ${new Date().toLocaleTimeString("es-EC")}`;
+  doc.text(genDate, margin, 51);
+
+  // ---- TABLE ----
   const head = [columns.map((c) => c.header)];
   const body = data.map((row) =>
     columns.map((col) => {
@@ -76,19 +114,48 @@ export async function exportToPDF<T extends Record<string, unknown>>(
   autoTable(doc, {
     head,
     body,
-    startY: 34,
-    styles: { fontSize: 8, cellPadding: 3 },
-    headStyles: { fillColor: [245, 158, 11], textColor: 255, fontStyle: "bold" },
-    alternateRowStyles: { fillColor: [249, 250, 251] },
-    margin: { left: 14, right: 14 },
+    startY: 56,
+    styles: { fontSize: 8, cellPadding: 3, textColor: darkColor },
+    headStyles: { fillColor: darkColor, textColor: 255, fontStyle: "bold" },
+    alternateRowStyles: { fillColor: [248, 250, 252] },
+    columnStyles: {},
+    margin: { left: margin, right: margin },
+    didDrawPage: (hookData) => {
+      // ---- PAGE FOOTER ----
+      const pageNum = hookData.pageNumber;
+      const totalPages = (doc as unknown as { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages();
+
+      // Footer line
+      doc.setDrawColor(...brandColor);
+      doc.setLineWidth(0.5);
+      doc.line(margin, pageH - 14, pageW - margin, pageH - 14);
+
+      // Footer text
+      doc.setFontSize(7.5);
+      doc.setTextColor(100, 116, 139);
+      doc.setFont("helvetica", "normal");
+      doc.text(
+        opts.companyName ? `${opts.companyName} · ${new Date().toLocaleDateString("es-EC")}` : new Date().toLocaleDateString("es-EC"),
+        margin,
+        pageH - 8
+      );
+      doc.text(
+        `Página ${pageNum} de ${totalPages}`,
+        pageW - margin,
+        pageH - 8,
+        { align: "right" }
+      );
+    },
   });
 
-  // Total de registros
+  // ---- RECORD COUNT ----
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const finalY = ((doc as any).lastAutoTable?.finalY as number) ?? 40;
-  doc.setFontSize(9);
-  doc.setTextColor(100);
-  doc.text(`Total de registros: ${data.length}`, 14, finalY + 10);
+  const finalY = ((doc as any).lastAutoTable?.finalY as number) ?? 56;
+  if (finalY + 16 < pageH - 20) {
+    doc.setFontSize(8.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`Total de registros: ${data.length}`, margin, finalY + 10);
+  }
 
   doc.save(`${filename}.pdf`);
 }
@@ -104,3 +171,4 @@ function downloadBlob(blob: Blob, filename: string): void {
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
+

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { FileText, Plus, Search, Eye, Download, X, Trash2, Receipt, DollarSign, AlertCircle, CheckCircle2 } from "lucide-react";
+import { FileText, Plus, Search, Eye, Download, X, Trash2, Receipt, DollarSign, AlertCircle, CheckCircle2, Lock, Mail } from "lucide-react";
 import { PageHeader, Card, StatCard, ErrorState } from "@/components/ui";
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { useToast } from "@/components/ui/toast";
@@ -143,12 +143,23 @@ export default function FacturacionPage() {
     },
     {
       key: "actions", header: "Acciones", sortable: false,
-      render: i => (
-        <div className="flex gap-1">
-          <button className="p-1.5 rounded hover:bg-[var(--color-brand-500)]/10 text-[var(--color-brand-500)]" title="Descargar PDF"><Download size={14} /></button>
-          <button className="p-1.5 rounded hover:bg-blue-500/10 text-blue-500" title="Ver XML"><FileText size={14} /></button>
-        </div>
-      ),
+      render: i => {
+        const isEmitida = i.estado === "EMITIDA" || i.estado === "AUTORIZADA";
+        return (
+          <div className="flex gap-1 items-center">
+            <button className="p-1.5 rounded hover:bg-[var(--color-brand-500)]/10 text-[var(--color-brand-500)]" title="Descargar PDF"><Download size={14} /></button>
+            <button className="p-1.5 rounded hover:bg-blue-500/10 text-blue-500" title="Ver XML"><FileText size={14} /></button>
+            {isEmitida && (
+              <span
+                className="p-1.5 rounded text-[var(--color-text-muted)] cursor-help"
+                title="Las facturas emitidas no pueden ser modificadas según la normativa del SRI Ecuador"
+              >
+                <Lock size={13} />
+              </span>
+            )}
+          </div>
+        );
+      },
     },
   ];
 

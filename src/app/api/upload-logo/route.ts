@@ -2,11 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const USE_REAL_DB = process.env.USE_REAL_DB === "true";
-    if (!USE_REAL_DB) {
-      return NextResponse.json({ error: "Real DB not enabled" }, { status: 400 });
-    }
-
     const { getCurrentTenantId } = await import("@/lib/db/get-tenant");
     const { createClient } = await import("@supabase/supabase-js");
 
