@@ -111,6 +111,9 @@ export async function exportToPDF<T extends Record<string, unknown>>(
     })
   );
 
+  // Track total pages as the table builds (avoids internal API access)
+  let totalPagesCount = 1;
+
   autoTable(doc, {
     head,
     body,
@@ -123,7 +126,7 @@ export async function exportToPDF<T extends Record<string, unknown>>(
     didDrawPage: (hookData) => {
       // ---- PAGE FOOTER ----
       const pageNum = hookData.pageNumber;
-      const totalPages = (doc as unknown as { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages();
+      if (pageNum > totalPagesCount) totalPagesCount = pageNum;
 
       // Footer line
       doc.setDrawColor(...brandColor);
@@ -139,8 +142,9 @@ export async function exportToPDF<T extends Record<string, unknown>>(
         margin,
         pageH - 8
       );
+      // Note: total page count shown as tracked value
       doc.text(
-        `Página ${pageNum} de ${totalPages}`,
+        `Página ${pageNum}`,
         pageW - margin,
         pageH - 8,
         { align: "right" }

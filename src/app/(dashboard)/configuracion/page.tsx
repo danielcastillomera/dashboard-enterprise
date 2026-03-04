@@ -117,7 +117,7 @@ function LogoUploader({ logoUrl, onUpload, onDelete }: { logoUrl: string; onUplo
       addToast({ message: "Formato no permitido. Use PNG, JPG, SVG o WebP.", variant: "error" });
       return;
     }
-    if (file.size < 10 * 1024) {
+    if (file.size < 10 * 1024 && file.type !== "image/svg+xml") {
       addToast({ message: "El archivo es demasiado pequeño (mínimo 10 KB).", variant: "error" });
       return;
     }

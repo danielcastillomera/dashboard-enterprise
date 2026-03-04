@@ -58,6 +58,16 @@ function CircularProgress({ percent, size = 80 }: { percent: number; size?: numb
   );
 }
 
+/** Auto-animation progress steps: [percent, cumulative delay ms] */
+const AUTO_PROGRESS_STEPS: [number, number][] = [
+  [30, 600],   // Request received
+  [50, 900],   // Processing
+  [65, 1200],  // Parsing response
+  [75, 1600],  // Applying data
+  [85, 2400],  // Almost done
+  [90, 4000],  // Waiting for completion
+];
+
 export function FullScreenLoader({ state, message, detail, progress, onClose }: FullScreenLoaderProps) {
   // Auto-animate progress when no real value is provided
   const [autoPercent, setAutoPercent] = useState(10);
@@ -66,8 +76,7 @@ export function FullScreenLoader({ state, message, detail, progress, onClose }: 
     if (state !== "loading" || progress !== undefined) return;
     setAutoPercent(10);
     // Step to 70% quickly, then slow down approaching 90%
-    const steps: [number, number][] = [[30, 600], [50, 900], [65, 1200], [75, 1600], [85, 2400], [90, 4000]];
-    const timers = steps.map(([pct, delay]) =>
+    const timers = AUTO_PROGRESS_STEPS.map(([pct, delay]) =>
       setTimeout(() => setAutoPercent(pct), delay)
     );
     return () => timers.forEach(clearTimeout);

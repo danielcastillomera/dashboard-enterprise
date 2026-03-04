@@ -381,8 +381,8 @@ export default function ProductosPage() {
           </div>
 
           <div className="flex gap-2 justify-end">
-            <Button variant="secondary" size="sm" onClick={() => setShowForm(false)}>Cancelar</Button>
-            <Button size="sm" onClick={handleSubmit}>{editingProduct ? "Guardar Cambios" : "Registrar Producto"}</Button>
+            <Button variant="danger" size="sm" onClick={() => setShowForm(false)}>Cancelar</Button>
+            <Button variant="success" size="sm" onClick={handleSubmit}>{editingProduct ? "Guardar Cambios" : "Registrar Producto"}</Button>
           </div>
         </Card>
       )}
