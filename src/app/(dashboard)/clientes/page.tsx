@@ -290,10 +290,10 @@ export default function ClientesPage() {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 mt-6 pt-4 border-t border-[var(--color-dashboard-border)]">
-              <button type="submit" disabled={submitting} className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-[var(--color-brand-500)] text-white text-sm font-medium hover:opacity-90 disabled:opacity-50">
+              <button type="submit" disabled={submitting} className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition-colors disabled:opacity-50">
                 {submitting ? <><span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" /> Guardando...</> : editing ? "Actualizar" : "Guardar Cliente"}
               </button>
-              <button type="button" onClick={resetForm} className="px-6 py-2.5 rounded-lg border border-[var(--color-dashboard-border)] text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-dashboard-surface-hover)]">Cancelar</button>
+              <button type="button" onClick={resetForm} className="px-6 py-2.5 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors">Cancelar</button>
             </div>
           </form>
         </Card>

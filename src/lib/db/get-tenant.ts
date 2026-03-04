@@ -10,17 +10,7 @@ import { prisma } from "@/lib/prisma";
    Usado por: API Routes y Server Actions
    ============================================ */
 
-// Cache en memoria por request (evita múltiples queries por request)
-let cachedTenantId: string | null = null;
-let cacheTimestamp = 0;
-const CACHE_TTL = 5000; // 5 segundos
-
 export async function getCurrentTenantId(): Promise<string> {
-  // Check cache (solo válido dentro del mismo request cycle)
-  if (cachedTenantId && Date.now() - cacheTimestamp < CACHE_TTL) {
-    return cachedTenantId;
-  }
-
   const supabase = await createClient();
   const {
     data: { user },
@@ -47,15 +37,11 @@ export async function getCurrentTenantId(): Promise<string> {
       select: { id: true },
     });
     if (tenant) {
-      cachedTenantId = tenant.id;
-      cacheTimestamp = Date.now();
       return tenant.id;
     }
     throw new Error("No se encontró perfil ni tenant para el usuario");
   }
 
-  cachedTenantId = profile.tenantId;
-  cacheTimestamp = Date.now();
   return profile.tenantId;
 }
 
