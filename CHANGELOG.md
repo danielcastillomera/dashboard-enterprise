@@ -1,5 +1,25 @@
 # Changelog
 
+## v2.1.4 — README
+
+### Documentation
+- **README.md** — Documentación principal del repositorio: descripción del proyecto, características, tech stack, instalación paso a paso, scripts, estructura del proyecto, despliegue en Vercel y enlaces a documentación adicional.
+
+---
+
+## v2.1.3 — Resend Setup Documentation
+
+### Documentation
+- **Resend configuration guide** — Added `docs/RESEND_SETUP.md` with step-by-step instructions:
+  - How to obtain API Key from Resend (logged in via GitHub)
+  - Domain verification with DNS records (SPF, DKIM)
+  - Local `.env.local` configuration
+  - Vercel environment variables setup
+  - Supabase considerations (no changes needed)
+  - Testing and troubleshooting
+
+---
+
 ## v2.1.2 — Critical Fix: Clientes + Facturación Pages
 
 ### Root Cause Fix
