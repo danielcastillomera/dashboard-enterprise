@@ -1,5 +1,27 @@
 # Changelog
 
+## v2.1.2 — Critical Fix: Clientes + Facturación Pages
+
+### Root Cause Fix
+- **Replaced SWR with project's `useData` hook** — Both Clientes and Facturación pages were using the `useSWR` library while ALL other working pages (Ventas, Compras, Pedidos) use the project's built-in `useData` hook. This incompatibility caused client-side crashes in Vercel production.
+- **Facturación page was missing entirely** — The file was deleted in a previous session but never recreated, causing a runtime crash when navigating to `/facturacion`.
+
+### Architecture Alignment
+- Both pages now use identical patterns to working pages: `useData`, `PageHeader`, `Card`, `StatCard`, `ErrorState`, `FullScreenLoader`, `formatCurrency`
+- Safe data extraction: `Array.isArray(rawData) ? rawData : []` prevents crashes when API returns errors
+- Products API response handled correctly: extracts `data.products` array from `{ products, categories }` wrapper
+
+### Features Preserved
+- Ecuador phone validation (celular 10 dígitos 09XX, fijo 9 dígitos 0X)
+- All fields required (tipo ID, identificación, razón social, dirección, celular, email)
+- No browser autocomplete on client forms
+- Mobile-responsive: cards on mobile, tables on desktop
+- Invoice creation with real-time IVA calculation
+- Quick product add buttons
+- Invoice preview modal
+
+---
+
 ## v2.1.1 — Hotfix: Clientes + Facturación + UX
 
 ### Bug Fixes
