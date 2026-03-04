@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.1.4 — README
+
+### Documentation
+- **README.md** — Documentación principal del repositorio: descripción del proyecto, características, tech stack, instalación paso a paso, scripts, estructura del proyecto, despliegue en Vercel y enlaces a documentación adicional.
+
+---
+
 ## v2.1.3 — Resend Setup Documentation
 
 ### Documentation
