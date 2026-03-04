@@ -57,11 +57,11 @@ re_AbCdEfGh_1234567890abcdef
 
    | Tipo    | Nombre/Host                    | Valor                                      | Propósito          |
    |---------|-------------------------------|--------------------------------------------|--------------------|
-   | MX      | `send._domainkey`             | `feedback-smtp.resend.com`                 | Recepción SMTP     |
    | TXT     | `send._domainkey`             | `v=DKIM1; k=rsa; p=MIGfMA0GCS...`         | Firma DKIM         |
    | TXT     | `@` o vacío                   | `v=spf1 include:amazonses.com ~all`        | SPF (autenticación)|
+   | MX      | `bounce` (o según Resend)     | `feedback-smtp.resend.com`                 | Manejo de rebotes  |
 
-   > Los valores exactos los proporciona Resend en la pantalla de verificación. Cópialos tal cual.
+   > ⚠️ Los valores y nombres exactos los proporciona Resend en la pantalla de verificación de dominio. Cópialos tal cual desde ahí, ya que pueden variar.
 
 5. **Agrega los registros DNS** en tu proveedor de dominio:
    - Si usas **Namecheap**: Panel > Domain List > Manage > Advanced DNS.
@@ -183,7 +183,6 @@ Si aún no tienes dominio verificado, puedes probar con la dirección de prueba 
 ### El email llega a spam
 
 - Asegúrate de que los registros DNS (SPF, DKIM) estén correctos.
-- Usa una dirección de envío profesional (evita `no-reply@`, prefiere `facturacion@tuempresa.com`).
 - En Resend, verifica que el dominio muestre **SPF ✅** y **DKIM ✅**.
 
 ---
