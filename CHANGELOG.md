@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.2.1 — Fix HTTP 500 Clientes + Loader Progress
+
+### Critical Fix
+- **Fixed HTTP 500 on Clientes page** — The `import { sendInvoiceEmail }` at the top of `queries.ts` (line 6) was a **static import**. When the module loaded for ANY query (including `getCustomers`), it imported the entire Resend email chain. If any part of that chain had an issue (missing env vars, module init error), the ENTIRE billing module failed — including the simple customer list. Changed to **dynamic import** (`await import(...)`) so it only loads when actually sending an invoice.
+- **Made Customer fields nullable in Prisma** — `direccion`, `celular`, `email` are now optional (`String?`) to match existing database rows that may not have these columns populated.
+
+### FullScreenLoader Improvements
+- **Always reaches 100%** — Previously, fast operations jumped from ~10% directly to success without ever showing 100%. Now the loader transitions: loading → 100% (visible for 400ms) → success/error icon.
+- **Faster initial progress** — Steps start at 150ms instead of 600ms, so the animation feels responsive even for fast operations.
+- **Smooth state transitions** — Uses `displayState` to ensure the 100% circle is visible before switching to the checkmark/error icon.
+
+---
+
 ## v2.2.0 — Stability, Email Integration & Standards
 
 ### Critical Fixes

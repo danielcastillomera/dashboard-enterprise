@@ -22,7 +22,7 @@ export async function getCustomersAction(): Promise<ActionResult> {
 
 export async function createCustomerAction(data: {
   tipoIdentificacion: string; identificacion: string; razonSocial: string;
-  direccion: string; telefono?: string; celular: string; email: string;
+  direccion?: string; telefono?: string; celular?: string; email?: string;
 }): Promise<ActionResult> {
   try {
     const tenantId = await getTenantId();

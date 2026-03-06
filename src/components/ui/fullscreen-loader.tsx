@@ -60,49 +60,57 @@ function CircularProgress({ percent, size = 80 }: { percent: number; size?: numb
 
 /** Auto-animation progress steps: [percent, cumulative delay ms] */
 const AUTO_PROGRESS_STEPS: [number, number][] = [
-  [30, 600],   // Request received
-  [50, 900],   // Processing
-  [65, 1200],  // Parsing response
-  [75, 1600],  // Applying data
-  [85, 2400],  // Almost done
-  [90, 4000],  // Waiting for completion
+  [25, 150],   // Request sent
+  [45, 300],   // Processing
+  [65, 500],   // Parsing response
+  [80, 800],   // Applying data
+  [90, 1200],  // Almost done
+  [95, 2000],  // Finalizing
 ];
 
 export function FullScreenLoader({ state, message, detail, progress, onClose }: FullScreenLoaderProps) {
-  // Auto-animate progress when no real value is provided
-  const [autoPercent, setAutoPercent] = useState(10);
+  const [autoPercent, setAutoPercent] = useState(5);
+  const [displayState, setDisplayState] = useState(state);
 
+  // Auto-animate progress when no real value is provided
   useEffect(() => {
     if (state !== "loading" || progress !== undefined) return;
-    setAutoPercent(10);
-    // Step to 70% quickly, then slow down approaching 90%
+    setAutoPercent(5);
     const timers = AUTO_PROGRESS_STEPS.map(([pct, delay]) =>
       setTimeout(() => setAutoPercent(pct), delay)
     );
     return () => timers.forEach(clearTimeout);
   }, [state, progress]);
 
-  // When loading completes with success/error, jump to 100
+  // When loading completes: jump to 100% FIRST, then show success/error after brief delay
   useEffect(() => {
-    if (state === "success" || state === "error") setAutoPercent(100);
+    if (state === "success" || state === "error") {
+      setAutoPercent(100);
+      // Show 100% for 400ms before transitioning to success/error icon
+      const t = setTimeout(() => setDisplayState(state), 400);
+      return () => clearTimeout(t);
+    }
+    setDisplayState(state);
   }, [state]);
 
   if (state === "idle") return null;
 
   const displayPercent = progress !== undefined ? Math.min(100, Math.max(0, progress)) : autoPercent;
+  const showLoading = displayState === "loading" || (displayPercent === 100 && displayState === state && (state === "success" || state === "error"));
+  const visualState = displayPercent === 100 && (state === "success" || state === "error") ? displayState : "loading";
 
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-live="polite">
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={state !== "loading" ? onClose : undefined}
+        onClick={displayState !== "loading" ? onClose : undefined}
       />
 
       <div className="relative w-full max-w-sm rounded-2xl bg-[var(--color-dashboard-surface)] border border-[var(--color-dashboard-border)] shadow-2xl p-8 text-center">
 
         {/* Circular progress / status icon */}
         <div className="flex justify-center mb-4">
-          {state === "loading" && (
+          {visualState === "loading" && (
             <div className="relative w-20 h-20 flex items-center justify-center">
               <CircularProgress percent={displayPercent} size={80} />
               <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-[var(--color-brand-500)]">
@@ -110,12 +118,12 @@ export function FullScreenLoader({ state, message, detail, progress, onClose }: 
               </span>
             </div>
           )}
-          {state === "success" && (
+          {visualState === "success" && displayState === "success" && (
             <div className="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center animate-[scale-in_0.3s_ease-out]">
               <CheckCircle2 size={36} className="text-green-500" />
             </div>
           )}
-          {state === "error" && (
+          {visualState === "error" && displayState === "error" && (
             <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center">
               <XCircle size={36} className="text-red-500" />
             </div>
@@ -124,12 +132,12 @@ export function FullScreenLoader({ state, message, detail, progress, onClose }: 
 
         {/* Message */}
         <h3 className={`text-lg font-bold mb-1 ${
-          state === "loading" ? "text-[var(--color-text-primary)]" :
-          state === "success" ? "text-green-500" : "text-red-500"
+          displayState === "loading" ? "text-[var(--color-text-primary)]" :
+          displayState === "success" ? "text-green-500" : "text-red-500"
         }`}>
           {message || (
-            state === "loading" ? "Procesando..." :
-            state === "success" ? "¡Operación Exitosa!" :
+            displayState === "loading" ? "Procesando..." :
+            displayState === "success" ? "¡Operación Exitosa!" :
             "Error en la Operación"
           )}
         </h3>
@@ -139,16 +147,16 @@ export function FullScreenLoader({ state, message, detail, progress, onClose }: 
         )}
 
         {/* Close button for success/error */}
-        {state !== "loading" && onClose && (
+        {displayState !== "loading" && onClose && (
           <button
             onClick={onClose}
             className={`mt-5 px-6 py-2 rounded-xl text-sm font-semibold text-white transition-colors ${
-              state === "success"
+              displayState === "success"
                 ? "bg-green-600 hover:bg-green-700"
                 : "bg-red-600 hover:bg-red-700"
             }`}
           >
-            {state === "success" ? "Continuar" : "Cerrar"}
+            {displayState === "success" ? "Continuar" : "Cerrar"}
           </button>
         )}
       </div>

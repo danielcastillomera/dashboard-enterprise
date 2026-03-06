@@ -3,7 +3,6 @@
 import { prisma } from "@/lib/prisma";
 import { generateClaveAcceso, formatInvoiceNumber, FORMAS_PAGO } from "@/lib/billing/clave-acceso";
 import { generateInvoiceXML } from "@/lib/billing/xml-generator";
-import { sendInvoiceEmail } from "@/lib/email/send-invoice";
 
 // ---- CUSTOMERS ----
 
@@ -20,7 +19,7 @@ export async function getCustomer(id: string) {
 
 export async function createCustomer(tenantId: string, data: {
   tipoIdentificacion: string; identificacion: string; razonSocial: string;
-  direccion: string; telefono?: string; celular: string; email: string;
+  direccion?: string; telefono?: string; celular?: string; email?: string;
 }) {
   return prisma.customer.create({ data: { ...data, tenantId } });
 }
@@ -242,7 +241,10 @@ export async function createInvoiceAndNotify(tenantId: string, data: Parameters<
             precioUnitario: it.precioUnitario,
             precioTotalSinImpuesto: it.precioTotalSinImpuesto,
           })),
-          customer: invoice.customer,
+          customer: {
+            razonSocial: invoice.customer.razonSocial,
+            email: invoice.customer.email || "",
+          },
         },
         businessProfile: bp,
       });
