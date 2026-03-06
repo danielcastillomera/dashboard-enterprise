@@ -223,7 +223,7 @@ function SectionPerfil({ form, errors, set }: { form: BusinessProfile; errors: F
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className={labelCls}>R.U.C. *</label>
-          <input value={form.ruc} onChange={e => set("ruc", e.target.value)} onBlur={() => set("ruc", form.ruc.trim())} placeholder="1791309863001" maxLength={13} className={errors.ruc ? inputErrCls : inputCls} />
+          <input value={form.ruc} onChange={e => set("ruc", e.target.value)} onBlur={() => set("ruc", form.ruc.trim())} placeholder="Ej: 0990000000001" maxLength={13} className={errors.ruc ? inputErrCls : inputCls} />
           <FieldErr msg={errors.ruc} />
         </div>
         <div>
@@ -237,7 +237,7 @@ function SectionPerfil({ form, errors, set }: { form: BusinessProfile; errors: F
         </div>
         <div>
           <label className={labelCls}>Contribuyente Especial No.</label>
-          <input value={form.contribuyenteEspecial} onChange={e => set("contribuyenteEspecial", e.target.value)} placeholder="0590" className={inputCls} />
+          <input value={form.contribuyenteEspecial} onChange={e => set("contribuyenteEspecial", e.target.value)} placeholder="Ej: 00000" className={inputCls} />
         </div>
       </div>
       <div className="flex flex-col sm:flex-row gap-4">
@@ -275,7 +275,7 @@ function SectionContacto({ form, errors, set }: { form: BusinessProfile; errors:
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div>
         <label className={labelCls}>Teléfono</label>
-        <input value={form.telefono} onChange={e => set("telefono", e.target.value)} placeholder="(02) 3934187" className={errors.telefono ? inputErrCls : inputCls} />
+        <input value={form.telefono} onChange={e => set("telefono", e.target.value)} placeholder="Ej: (04) 2000000" className={errors.telefono ? inputErrCls : inputCls} />
         <FieldErr msg={errors.telefono} />
       </div>
       <div>

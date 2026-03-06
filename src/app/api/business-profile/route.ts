@@ -19,7 +19,28 @@ export async function POST(req: Request) {
     const { upsertBusinessProfile } = await import("@/lib/billing/queries");
     const tenantId = await getCurrentTenantId();
     const body = await req.json();
-    const bp = await upsertBusinessProfile(tenantId, body);
+
+    // Only pass fields that exist in the BusinessProfile model
+    const validData = {
+      ruc: body.ruc,
+      razonSocial: body.razonSocial,
+      nombreComercial: body.nombreComercial || undefined,
+      direccionMatriz: body.direccionMatriz,
+      direccionSucursal: body.direccionSucursal || undefined,
+      telefono: body.telefono || undefined,
+      email: body.email || undefined,
+      website: body.website || undefined,
+      logoUrl: body.logoUrl || undefined,
+      ambiente: body.ambiente || "PRUEBAS",
+      obligadoContabilidad: body.obligadoContabilidad ?? false,
+      contribuyenteEspecial: body.contribuyenteEspecial || undefined,
+      regimenRimpe: body.regimenRimpe ?? false,
+      ivaRate: body.ivaRate ?? 15,
+      establishment: body.establishment || "001",
+      emissionPoint: body.emissionPoint || "001",
+    };
+
+    const bp = await upsertBusinessProfile(tenantId, validData);
     return NextResponse.json(bp);
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);

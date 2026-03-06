@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { getActiveTenantConfig, getEnabledModules } from "@/lib/tenant-config";
 import {
   Home, ShoppingCart, Package, Boxes, Truck,
@@ -29,8 +29,29 @@ export function Sidebar({
   onClose: () => void;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const config = getActiveTenantConfig();
   const modules = getEnabledModules(config);
+
+  // Import guard safely (may not be in context during SSR)
+  let confirmLeave: (() => Promise<boolean>) | null = null;
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const guard = require("@/components/ui/unsaved-guard").useUnsavedGuard();
+    confirmLeave = guard.confirmLeave;
+  } catch { /* Guard not available */ }
+
+  const handleNavClick = async (e: React.MouseEvent, path: string) => {
+    if (pathname === path) return; // Same page, no guard needed
+    if (confirmLeave) {
+      e.preventDefault();
+      const canLeave = await confirmLeave();
+      if (canLeave) {
+        router.push(path);
+        onClose();
+      }
+    }
+  };
 
   return (
     <aside
@@ -81,7 +102,7 @@ export function Sidebar({
             <Link
               key={module.id}
               href={module.path}
-              onClick={onClose}
+              onClick={(e) => handleNavClick(e, module.path)}
               aria-current={isActive ? "page" : undefined}
               className={`
                 flex items-center gap-3 px-3 py-2.5 mb-0.5 rounded-xl
@@ -104,7 +125,7 @@ export function Sidebar({
       {/* Footer del sidebar */}
       <div className="px-4 py-3 border-t border-[var(--color-dashboard-border)]">
         <p className="text-[10px] text-[var(--color-text-muted)] text-center">
-          Sistema de Gestión v2.2.1
+          Sistema de Gestión v2.3.0
         </p>
       </div>
     </aside>

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Plus, Search, Edit2, Trash2, Users, Phone, Smartphone } from "lucide-react";
 import { PageHeader, Card, ErrorState } from "@/components/ui";
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { useToast } from "@/components/ui/toast";
 import { FullScreenLoader } from "@/components/ui/fullscreen-loader";
+import { useUnsavedGuard } from "@/components/ui/unsaved-guard";
 import { useData, invalidateCache } from "@/lib/hooks/use-data";
 import { TIPOS_IDENTIFICACION } from "@/lib/billing/clave-acceso";
 
@@ -97,10 +98,17 @@ const EMPTY_FORM: FormData = {
 export default function ClientesPage() {
   const { data: rawData, isLoading, error, mutate } = useData<Customer[]>("/api/customers");
   const { addToast } = useToast();
+  const { setDirty, clearDirty } = useUnsavedGuard();
 
   const customers: Customer[] = Array.isArray(rawData) ? rawData : [];
 
   const [showForm, setShowForm] = useState(false);
+
+  // Track unsaved changes
+  useEffect(() => {
+    if (showForm) setDirty();
+    else clearDirty();
+  }, [showForm, setDirty, clearDirty]);
   const [editing, setEditing] = useState<Customer | null>(null);
   const [search, setSearch] = useState("");
   const [form, setForm] = useState<FormData>({ ...EMPTY_FORM });
@@ -273,13 +281,13 @@ export default function ClientesPage() {
               {/* Celular */}
               <div>
                 <label className={lbl}><span className="flex items-center gap-1"><Smartphone size={12} /> Celular *</span></label>
-                <input value={fmtCel(form.celular)} onChange={e => setDigit("celular", e.target.value, 10)} className={errors.celular ? inpErr : inp} autoComplete="nope" inputMode="numeric" name="ccl_x1" id="ccl_x1" placeholder="0991 234 567" />
+                <input value={fmtCel(form.celular)} onChange={e => setDigit("celular", e.target.value, 10)} className={errors.celular ? inpErr : inp} autoComplete="nope" inputMode="numeric" name="ccl_x1" id="ccl_x1" placeholder="Ej: 0990 000 000" />
                 {errors.celular ? <p className={errMsg}>{errors.celular}</p> : <p className="text-xs text-[var(--color-text-muted)]/50 mt-1">10 dígitos, inicia con 09</p>}
               </div>
               {/* Fijo */}
               <div>
                 <label className={lbl}><span className="flex items-center gap-1"><Phone size={12} /> Teléfono Fijo</span></label>
-                <input value={fmtFijo(form.telefono)} onChange={e => setDigit("telefono", e.target.value, 9)} className={errors.telefono ? inpErr : inp} autoComplete="nope" inputMode="numeric" name="ctf_x1" id="ctf_x1" placeholder="04 2123456" />
+                <input value={fmtFijo(form.telefono)} onChange={e => setDigit("telefono", e.target.value, 9)} className={errors.telefono ? inpErr : inp} autoComplete="nope" inputMode="numeric" name="ctf_x1" id="ctf_x1" placeholder="Ej: 04 2000000" />
                 {errors.telefono ? <p className={errMsg}>{errors.telefono}</p> : <p className="text-xs text-[var(--color-text-muted)]/50 mt-1">Opcional, 9 dígitos</p>}
               </div>
               {/* Email */}

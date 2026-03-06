@@ -1,162 +1,124 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { CheckCircle2, XCircle } from "lucide-react";
 
 /* ============================================
    FULL SCREEN LOADER
-   
-   Overlay centrado en el dashboard con indicador
-   circular de progreso real y mensajes descriptivos.
+
+   Estado visual:  circle → 100% → icon (success/error)
+   Garantiza que el usuario SIEMPRE ve el 100%
+   antes de ver el resultado final.
    ============================================ */
 
 interface FullScreenLoaderProps {
-  /** Estado actual */
   state: "loading" | "success" | "error" | "idle";
-  /** Mensaje principal */
   message?: string;
-  /** Submensaje (opcional) */
   detail?: string;
-  /** Porcentaje real de progreso (0-100). Si se omite, se anima automáticamente. */
   progress?: number;
-  /** Callback cuando se cierra (después de éxito/error) */
   onClose?: () => void;
 }
 
-/** Círculo SVG con progreso animado */
 function CircularProgress({ percent, size = 80 }: { percent: number; size?: number }) {
-  const radius = (size - 8) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (percent / 100) * circumference;
-
+  const r = (size - 8) / 2;
+  const c = 2 * Math.PI * r;
+  const offset = c - (percent / 100) * c;
   return (
     <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
-      {/* Track */}
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={6}
-        className="text-[var(--color-dashboard-border)]"
-      />
-      {/* Progress */}
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={6}
-        strokeLinecap="round"
-        strokeDasharray={circumference}
-        strokeDashoffset={strokeDashoffset}
-        className="text-[var(--color-brand-500)] transition-[stroke-dashoffset] duration-300 ease-out"
-      />
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="currentColor" strokeWidth={6} className="text-[var(--color-dashboard-border)]" />
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="currentColor" strokeWidth={6} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={offset} className="text-[var(--color-brand-500)] transition-[stroke-dashoffset] duration-200 ease-out" />
     </svg>
   );
 }
 
-/** Auto-animation progress steps: [percent, cumulative delay ms] */
-const AUTO_PROGRESS_STEPS: [number, number][] = [
-  [25, 150],   // Request sent
-  [45, 300],   // Processing
-  [65, 500],   // Parsing response
-  [80, 800],   // Applying data
-  [90, 1200],  // Almost done
-  [95, 2000],  // Finalizing
-];
+// Visual state machine: "circle" shows progress, "result" shows icon
+type Phase = "circle" | "result";
 
 export function FullScreenLoader({ state, message, detail, progress, onClose }: FullScreenLoaderProps) {
-  const [autoPercent, setAutoPercent] = useState(5);
-  const [displayState, setDisplayState] = useState(state);
+  const [percent, setPercent] = useState(0);
+  const [phase, setPhase] = useState<Phase>("circle");
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Auto-animate progress when no real value is provided
+  // Animate progress from 0 to ~95 while loading
   useEffect(() => {
-    if (state !== "loading" || progress !== undefined) return;
-    setAutoPercent(5);
-    const timers = AUTO_PROGRESS_STEPS.map(([pct, delay]) =>
-      setTimeout(() => setAutoPercent(pct), delay)
-    );
-    return () => timers.forEach(clearTimeout);
-  }, [state, progress]);
+    if (state === "loading") {
+      setPercent(0);
+      setPhase("circle");
+      let p = 0;
+      intervalRef.current = setInterval(() => {
+        p += p < 50 ? 8 : p < 80 ? 4 : p < 95 ? 1 : 0;
+        if (p > 95) p = 95;
+        setPercent(p);
+      }, 100);
+      return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+    }
+  }, [state]);
 
-  // When loading completes: jump to 100% FIRST, then show success/error after brief delay
+  // When operation finishes: jump to 100%, pause, then show result
   useEffect(() => {
     if (state === "success" || state === "error") {
-      setAutoPercent(100);
-      // Show 100% for 400ms before transitioning to success/error icon
-      const t = setTimeout(() => setDisplayState(state), 400);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      setPercent(100);
+      const t = setTimeout(() => setPhase("result"), 500);
       return () => clearTimeout(t);
     }
-    setDisplayState(state);
   }, [state]);
+
+  // Use externally provided progress if available
+  const displayPercent = progress !== undefined ? Math.min(100, Math.max(0, progress)) : percent;
 
   if (state === "idle") return null;
 
-  const displayPercent = progress !== undefined ? Math.min(100, Math.max(0, progress)) : autoPercent;
-  const showLoading = displayState === "loading" || (displayPercent === 100 && displayState === state && (state === "success" || state === "error"));
-  const visualState = displayPercent === 100 && (state === "success" || state === "error") ? displayState : "loading";
+  const isSuccess = state === "success";
+  const isError = state === "error";
 
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-live="polite">
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={displayState !== "loading" ? onClose : undefined}
-      />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={phase === "result" ? onClose : undefined} />
 
       <div className="relative w-full max-w-sm rounded-2xl bg-[var(--color-dashboard-surface)] border border-[var(--color-dashboard-border)] shadow-2xl p-8 text-center">
-
-        {/* Circular progress / status icon */}
         <div className="flex justify-center mb-4">
-          {visualState === "loading" && (
+          {phase === "circle" && (
             <div className="relative w-20 h-20 flex items-center justify-center">
               <CircularProgress percent={displayPercent} size={80} />
               <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-[var(--color-brand-500)]">
-                {displayPercent}%
+                {Math.round(displayPercent)}%
               </span>
             </div>
           )}
-          {visualState === "success" && displayState === "success" && (
+          {phase === "result" && isSuccess && (
             <div className="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center animate-[scale-in_0.3s_ease-out]">
               <CheckCircle2 size={36} className="text-green-500" />
             </div>
           )}
-          {visualState === "error" && displayState === "error" && (
-            <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center">
+          {phase === "result" && isError && (
+            <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center animate-[scale-in_0.3s_ease-out]">
               <XCircle size={36} className="text-red-500" />
             </div>
           )}
         </div>
 
-        {/* Message */}
         <h3 className={`text-lg font-bold mb-1 ${
-          displayState === "loading" ? "text-[var(--color-text-primary)]" :
-          displayState === "success" ? "text-green-500" : "text-red-500"
+          phase === "circle" ? "text-[var(--color-text-primary)]" :
+          isSuccess ? "text-green-500" : "text-red-500"
         }`}>
           {message || (
-            displayState === "loading" ? "Procesando..." :
-            displayState === "success" ? "¡Operación Exitosa!" :
+            phase === "circle" ? "Procesando..." :
+            isSuccess ? "¡Operación Exitosa!" :
             "Error en la Operación"
           )}
         </h3>
 
-        {detail && (
-          <p className="text-sm text-[var(--color-text-secondary)] mt-1">{detail}</p>
-        )}
+        {detail && <p className="text-sm text-[var(--color-text-muted)] mt-1">{detail}</p>}
 
-        {/* Close button for success/error */}
-        {displayState !== "loading" && onClose && (
+        {phase === "result" && onClose && (
           <button
             onClick={onClose}
             className={`mt-5 px-6 py-2 rounded-xl text-sm font-semibold text-white transition-colors ${
-              displayState === "success"
-                ? "bg-green-600 hover:bg-green-700"
-                : "bg-red-600 hover:bg-red-700"
+              isSuccess ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
             }`}
           >
-            {displayState === "success" ? "Continuar" : "Cerrar"}
+            {isSuccess ? "Continuar" : "Cerrar"}
           </button>
         )}
       </div>

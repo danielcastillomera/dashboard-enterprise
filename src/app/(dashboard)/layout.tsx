@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { ToastProvider } from "@/components/ui";
 import { OperationGuardProvider } from "@/components/ui/operation-guard";
+import { UnsavedGuardProvider } from "@/components/ui/unsaved-guard";
 
 /* ============================================
    DASHBOARD LAYOUT — ENTERPRISE + WCAG 2.2
@@ -25,6 +26,7 @@ export default function DashboardLayout({
   return (
     <ToastProvider>
     <OperationGuardProvider>
+    <UnsavedGuardProvider>
     <div className="flex h-screen overflow-hidden bg-[var(--color-dashboard-bg)]">
       {/* Skip to content — WCAG 2.4.1 Nivel A */}
       <a
@@ -62,6 +64,7 @@ export default function DashboardLayout({
         </main>
       </div>
     </div>
+    </UnsavedGuardProvider>
     </OperationGuardProvider>
     </ToastProvider>
   );

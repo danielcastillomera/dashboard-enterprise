@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { FileText, Plus, Search, Eye, Download, X, Trash2, Receipt, DollarSign, AlertCircle, CheckCircle2, Lock, Mail } from "lucide-react";
 import { PageHeader, Card, StatCard, ErrorState } from "@/components/ui";
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { useToast } from "@/components/ui/toast";
 import { FullScreenLoader } from "@/components/ui/fullscreen-loader";
+import { useUnsavedGuard } from "@/components/ui/unsaved-guard";
 import { useData, invalidateCache } from "@/lib/hooks/use-data";
 import { getActiveTenantConfig, formatCurrency } from "@/lib/tenant-config";
 import { FORMAS_PAGO, IVA_CODES } from "@/lib/billing/clave-acceso";
@@ -51,8 +52,14 @@ export default function FacturacionPage() {
   const customers: Customer[] = Array.isArray(rawCustomers) ? rawCustomers : [];
   const products: Product[] = productsRaw?.products && Array.isArray(productsRaw.products) ? productsRaw.products : [];
   const stats = (statsRaw && typeof statsRaw === "object" && !Array.isArray(statsRaw)) ? statsRaw : null;
+  const { setDirty, clearDirty } = useUnsavedGuard();
 
   const [showForm, setShowForm] = useState(false);
+  // Track unsaved changes
+  useEffect(() => {
+    if (showForm) setDirty();
+    else clearDirty();
+  }, [showForm, setDirty, clearDirty]);
   const [showPreview, setShowPreview] = useState(false);
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);

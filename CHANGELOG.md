@@ -1,5 +1,30 @@
 # Changelog
 
+## v2.3.0 — Config Fix, Unsaved Guard, Loader 100%
+
+### Critical Fix
+- **Fixed "Unknown argument language" error** in business profile save — API route now strips `language`, `timezone`, `currency`, `dateFormat` before sending to Prisma (these are UI-only fields stored locally, not in the BusinessProfile model).
+- **Business profile create/edit works** — upsert only passes valid Prisma fields.
+
+### Unsaved Changes Guard
+- New `UnsavedGuardProvider` component wraps the entire dashboard layout.
+- When a form is open (Clientes, Facturación), sidebar navigation is **intercepted** — shows a centered confirmation dialog: "¿Desea salir sin guardar?" with green "Continuar editando" and red "Salir sin guardar" buttons.
+- Also blocks browser tab close/refresh with `beforeunload` event.
+- Applied to: Clientes form, Facturación invoice creation form.
+
+### FullScreenLoader
+- **Always reaches 100%** — Complete rewrite with simple state machine (`circle` → `result`). Uses `setInterval` for smooth animation instead of static timeout steps.
+- Shows 100% for 500ms before transitioning to success/error icon.
+- Faster initial animation (reaches 50% in ~600ms).
+
+### Placeholder Cleanup
+- All form placeholders now use **generic example data** — no real RUC numbers, phone numbers, or company data anywhere in the dashboard.
+
+### Prisma Schema
+- `Customer.direccion`, `celular`, `email` are now optional (`String?`) to prevent crashes with existing database rows.
+
+---
+
 ## v2.2.1 — Fix HTTP 500 Clientes + Loader Progress
 
 ### Critical Fix
