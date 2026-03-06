@@ -1,5 +1,52 @@
 # Changelog
 
+## v2.2.0 — Stability, Email Integration & Standards
+
+### Critical Fixes
+- **Fixed HTTP 500 on Clientes page** — Root cause: `sendInvoiceEmail` import at module level caused entire billing queries module to fail if Resend wasn't configured. Changed to dynamic import.
+- **Single definitive migration SQL** — `supabase/migration-v2.2.0-complete.sql` replaces all previous migration files. Includes `celular` column, uses `IF NOT EXISTS`.
+
+### Email Integration (Resend)
+- Resend client with graceful fallback when API key not set
+- Invoice auto-send on emission (non-blocking)
+- Professional HTML email template
+- `EMAIL_FROM` configurable via environment variable
+
+### Invoice Immutability
+- Emitted invoices (`EMITIDA`) cannot be edited — Ecuador fiscal regulations
+
+### Code Quality
+- All billing pages use project's `useData` hook (consistent with working pages)
+- Safe data extraction prevents runtime crashes
+- Dynamic imports for email module prevent module-level failures
+
+### Documentation
+- Professional `README.md` with installation, structure, env vars
+- Resend setup guide in README
+- `CHANGELOG.md` following Keep a Changelog standard
+
+---
+
+## v2.1.4 — README
+
+### Documentation
+- **README.md** — Documentación principal del repositorio: descripción del proyecto, características, tech stack, instalación paso a paso, scripts, estructura del proyecto, despliegue en Vercel y enlaces a documentación adicional.
+
+---
+
+## v2.1.3 — Resend Setup Documentation
+
+### Documentation
+- **Resend configuration guide** — Added `docs/RESEND_SETUP.md` with step-by-step instructions:
+  - How to obtain API Key from Resend (logged in via GitHub)
+  - Domain verification with DNS records (SPF, DKIM)
+  - Local `.env.local` configuration
+  - Vercel environment variables setup
+  - Supabase considerations (no changes needed)
+  - Testing and troubleshooting
+
+---
+
 ## v2.1.2 — Critical Fix: Clientes + Facturación Pages
 
 ### Root Cause Fix

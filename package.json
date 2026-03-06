@@ -1,6 +1,6 @@
 {
   "name": "dashboard-enterprise",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "private": true,
   "description": "Dashboard multi-panel empresarial - Plantilla adaptable multi-industria",
   "scripts": {
@@ -38,6 +38,7 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "recharts": "^3.7.0",
+    "resend": "^6.9.3",
     "swr": "^2.4.1",
     "tailwindcss": "^4.2.0",
     "typescript": "^5.9.3",

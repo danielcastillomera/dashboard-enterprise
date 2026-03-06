@@ -121,8 +121,8 @@ export async function createInvoiceAction(data: {
     if (data.items.length === 0) return { success: false, message: "Agregue al menos un producto" };
 
     const tenantId = await getTenantId();
-    const { createInvoice } = await import("@/lib/billing/queries");
-    const invoice = await createInvoice(tenantId, data);
+    const { createInvoiceAndNotify } = await import("@/lib/billing/queries");
+    const invoice = await createInvoiceAndNotify(tenantId, data);
     return { success: true, message: `Factura ${invoice.invoiceNumber} emitida exitosamente`, data: invoice };
   } catch (error: unknown) {
     return { success: false, message: error instanceof Error ? error.message : "Error al crear factura" };

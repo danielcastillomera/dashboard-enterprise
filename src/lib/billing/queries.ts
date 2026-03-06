@@ -223,6 +223,36 @@ export async function createInvoice(tenantId: string, data: {
   });
 }
 
+/** Crea la factura y envía automáticamente el email al cliente */
+export async function createInvoiceAndNotify(tenantId: string, data: Parameters<typeof createInvoice>[1]) {
+  const invoice = await createInvoice(tenantId, data);
+
+  // Auto-send email (non-blocking — errors do not fail the main operation)
+  try {
+    const bp = await prisma.businessProfile.findUnique({ where: { tenantId } });
+    if (bp && invoice.customer?.email) {
+      const { sendInvoiceEmail } = await import("@/lib/email/send-invoice");
+      await sendInvoiceEmail({
+        invoice: {
+          ...invoice,
+          items: invoice.items.map(it => ({
+            descripcion: it.descripcion,
+            cantidad: it.cantidad,
+            precioUnitario: it.precioUnitario,
+            precioTotalSinImpuesto: it.precioTotalSinImpuesto,
+          })),
+          customer: invoice.customer,
+        },
+        businessProfile: bp,
+      });
+    }
+  } catch (emailErr) {
+    console.error("Error al enviar email de factura (no crítico):", emailErr);
+  }
+
+  return invoice;
+}
+
 export async function getInvoiceStats(tenantId: string) {
   const [total, emitidas, anuladas, totalRevenue] = await Promise.all([
     prisma.invoice.count({ where: { tenantId } }),

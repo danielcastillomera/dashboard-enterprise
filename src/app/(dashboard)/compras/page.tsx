@@ -197,8 +197,8 @@ export default function ComprasPage() {
             )}
 
             <div className="flex gap-2 justify-end mt-4">
-              <Button variant="secondary" size="sm" type="button" onClick={closeForm}>Cancelar</Button>
-              <Button size="sm" type="submit" disabled={!selectedProduct || !quantity || Number(quantity) <= 0}>Registrar Compra</Button>
+              <Button variant="danger" size="sm" type="button" onClick={closeForm}>Cancelar</Button>
+              <Button variant="success" size="sm" type="submit" disabled={!selectedProduct || !quantity || Number(quantity) <= 0}>Registrar Compra</Button>
             </div>
           </form>
         </Card>
