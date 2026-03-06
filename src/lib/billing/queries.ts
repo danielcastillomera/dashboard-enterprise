@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { generateClaveAcceso, formatInvoiceNumber, FORMAS_PAGO } from "@/lib/billing/clave-acceso";
 import { generateInvoiceXML } from "@/lib/billing/xml-generator";
+import { sendInvoiceEmail } from "@/lib/email/send-invoice";
 
 // ---- CUSTOMERS ----
 
