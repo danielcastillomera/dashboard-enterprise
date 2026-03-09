@@ -1,5 +1,28 @@
 # Changelog
 
+## v2.4.0 — Professional PDF RIDE, PDF Viewer, XML Viewer
+
+### Professional PDF Generation (RIDE Format)
+- **Real PDF invoices** using `@react-pdf/renderer` — generates proper A4 PDF documents with professional RIDE layout (Representación Impresa del Documento Electrónico).
+- PDF includes: company header with RUC, invoice box with number and clave de acceso, customer data, items table with columns (code, description, qty, price, discount, total), tax breakdown (15%, 0%, no objeto, exento), grand total bar, payment method, and additional info section.
+- Served via `/api/invoices/[id]?format=pdf` with `Content-Type: application/pdf`.
+
+### Invoice Viewer & Actions
+- **Eye icon (Ver PDF)** — Opens PDF in a full-screen modal viewer with embedded iframe. Viewer includes "Descargar" (green) and "Imprimir" (blue) buttons in the toolbar.
+- **Download icon (Descargar PDF)** — Direct PDF download.
+- **FileText icon (Ver XML)** — Opens XML in a syntax-highlighted modal viewer with download button. Uses blue document icon as requested.
+- No more .txt files — everything is proper PDF.
+- Mobile invoice cards also have all 3 action buttons.
+
+### Removed
+- Lock icon removed from invoice actions.
+- "Anuladas" stat removed (Ecuador: invoices cannot be voided).
+
+### Dependencies
+- Added: `@react-pdf/renderer` for server-side PDF generation.
+
+---
+
 ## v2.3.1 — Ecuador Compliance: No Anulación, Working Downloads
 
 ### Ecuador Fiscal Compliance

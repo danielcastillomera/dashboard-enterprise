@@ -1,6 +1,6 @@
 {
   "name": "dashboard-enterprise",
-  "version": "2.3.1",
+  "version": "2.4.0",
   "private": true,
   "description": "Dashboard multi-panel empresarial - Plantilla adaptable multi-industria",
   "scripts": {
@@ -20,6 +20,7 @@
   "dependencies": {
     "@eslint/eslintrc": "^3.3.3",
     "@prisma/client": "^5.22.0",
+    "@react-pdf/renderer": "^4.3.2",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.97.0",
     "@tailwindcss/postcss": "^4.2.0",
