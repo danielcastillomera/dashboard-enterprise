@@ -1,5 +1,23 @@
 # Changelog
 
+## v2.3.1 — Ecuador Compliance: No Anulación, Working Downloads
+
+### Ecuador Fiscal Compliance
+- **Removed "Anuladas" stat card and ANULADA status** — In Ecuador, emitted invoices cannot be voided per SRI regulations. The stats panel now shows: Total Facturas, Emitidas, Ingresos Totales (3 cards instead of 4).
+- **Removed Lock icon** from invoice actions — was confusing and unnecessary.
+- **Invoice immutability enforced** — emitted invoices have no edit capabilities in the UI.
+
+### Working Action Buttons
+- **Download button** now downloads the invoice as a text file via `/api/invoices/[id]?format=pdf`.
+- **XML button** now downloads the SRI XML file via `/api/invoices/[id]?format=xml` with proper `Content-Disposition` headers.
+- Both buttons show a toast notification confirming the download.
+- New API route: `src/app/api/invoices/[id]/route.ts` — serves invoice detail, XML download, and receipt download.
+
+### Mobile
+- Invoice cards on mobile now have download/XML buttons visible.
+
+---
+
 ## v2.3.0 — Config Fix, Unsaved Guard, Loader 100%
 
 ### Critical Fix

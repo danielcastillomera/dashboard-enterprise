@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { FileText, Plus, Search, Eye, Download, X, Trash2, Receipt, DollarSign, AlertCircle, CheckCircle2, Lock, Mail } from "lucide-react";
+import { FileText, Plus, Search, Eye, Download, X, Trash2, Receipt, DollarSign, CheckCircle2, Code } from "lucide-react";
 import { PageHeader, Card, StatCard, ErrorState } from "@/components/ui";
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { useToast } from "@/components/ui/toast";
@@ -37,6 +37,21 @@ interface Invoice {
 }
 
 /* ============================================
+   HELPERS
+   ============================================ */
+
+/** Descarga un archivo desde una URL API */
+function downloadFile(url: string, fallbackName: string) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fallbackName;
+  a.target = "_blank";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+/* ============================================
    PAGE
    ============================================ */
 export default function FacturacionPage() {
@@ -47,7 +62,6 @@ export default function FacturacionPage() {
   const { data: productsRaw } = useData<{ products: Product[] }>("/api/products");
   const { addToast } = useToast();
 
-  // Safely extract arrays
   const invoices: Invoice[] = Array.isArray(rawInvoices) ? rawInvoices : [];
   const customers: Customer[] = Array.isArray(rawCustomers) ? rawCustomers : [];
   const products: Product[] = productsRaw?.products && Array.isArray(productsRaw.products) ? productsRaw.products : [];
@@ -55,11 +69,10 @@ export default function FacturacionPage() {
   const { setDirty, clearDirty } = useUnsavedGuard();
 
   const [showForm, setShowForm] = useState(false);
-  // Track unsaved changes
   useEffect(() => {
-    if (showForm) setDirty();
-    else clearDirty();
+    if (showForm) setDirty(); else clearDirty();
   }, [showForm, setDirty, clearDirty]);
+
   const [showPreview, setShowPreview] = useState(false);
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
@@ -71,21 +84,14 @@ export default function FacturacionPage() {
   const addItem = () => {
     setItems([...items, { codigoPrincipal: "", descripcion: "", cantidad: 1, precioUnitario: 0, descuento: 0, ivaCode: "4" }]);
   };
-
   const removeItem = (idx: number) => setItems(items.filter((_, i) => i !== idx));
-
   const updateItem = (idx: number, field: string, value: string | number) => {
     setItems(items.map((item, i) => i === idx ? { ...item, [field]: value } : item));
   };
-
   const addProductLine = (p: Product) => {
     setItems([...items, {
       codigoPrincipal: p.code || p.id.slice(0, 8).toUpperCase(),
-      descripcion: p.name,
-      cantidad: 1,
-      precioUnitario: p.price,
-      descuento: 0,
-      ivaCode: "4",
+      descripcion: p.name, cantidad: 1, precioUnitario: p.price, descuento: 0, ivaCode: "4",
     }]);
   };
 
@@ -118,7 +124,7 @@ export default function FacturacionPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Error al crear factura");
-      addToast({ message: `Factura ${data.invoiceNumber || ""} emitida`, variant: "success" });
+      addToast({ message: `Factura ${data.invoiceNumber || ""} emitida exitosamente`, variant: "success" });
       setShowForm(false);
       setItems([]);
       setSelectedCustomer("");
@@ -130,12 +136,23 @@ export default function FacturacionPage() {
     } finally { setSaving(false); }
   };
 
+  /* ---- Download handlers ---- */
+  const handleDownloadPDF = (inv: Invoice) => {
+    downloadFile(`/api/invoices/${inv.id}?format=pdf`, `factura-${inv.invoiceNumber}.txt`);
+    addToast({ message: `Descargando factura ${inv.invoiceNumber}...`, variant: "info" });
+  };
+
+  const handleDownloadXML = (inv: Invoice) => {
+    downloadFile(`/api/invoices/${inv.id}?format=xml`, `factura-${inv.invoiceNumber}.xml`);
+    addToast({ message: `Descargando XML ${inv.invoiceNumber}...`, variant: "info" });
+  };
+
   const filtered = invoices.filter(inv =>
     (inv.invoiceNumber || "").includes(search) ||
     (inv.customer?.razonSocial || "").toLowerCase().includes(search.toLowerCase())
   );
 
-  /* ---- Invoice Table Columns ---- */
+  /* ---- Table Columns ---- */
   const columns: Column<Invoice>[] = [
     { key: "num", header: "Factura", sortValue: i => i.invoiceNumber, render: i => <span className="font-mono font-medium text-[var(--color-brand-500)]">{i.invoiceNumber}</span> },
     { key: "cli", header: "Cliente", sortValue: i => i.customer?.razonSocial || "", render: i => <span className="text-[var(--color-text-primary)]">{i.customer?.razonSocial || "—"}</span> },
@@ -144,36 +161,40 @@ export default function FacturacionPage() {
     {
       key: "estado", header: "Estado", sortValue: i => i.estado,
       render: i => {
-        const c: Record<string,string> = { EMITIDA: "bg-green-500/10 text-green-500", CREADA: "bg-yellow-500/10 text-yellow-500", ANULADA: "bg-red-500/10 text-red-500", AUTORIZADA: "bg-blue-500/10 text-blue-500" };
-        return <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${c[i.estado] || "bg-gray-500/10 text-gray-500"}`}>{i.estado || "—"}</span>;
+        const colors: Record<string, string> = {
+          EMITIDA: "bg-green-500/10 text-green-500",
+          CREADA: "bg-yellow-500/10 text-yellow-500",
+          AUTORIZADA: "bg-blue-500/10 text-blue-500",
+        };
+        return <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${colors[i.estado] || "bg-gray-500/10 text-gray-500"}`}>{i.estado || "—"}</span>;
       },
     },
     {
       key: "actions", header: "Acciones", sortable: false,
-      render: i => {
-        const isEmitida = i.estado === "EMITIDA" || i.estado === "AUTORIZADA";
-        return (
-          <div className="flex gap-1 items-center">
-            <button className="p-1.5 rounded hover:bg-[var(--color-brand-500)]/10 text-[var(--color-brand-500)]" title="Descargar PDF"><Download size={14} /></button>
-            <button className="p-1.5 rounded hover:bg-blue-500/10 text-blue-500" title="Ver XML"><FileText size={14} /></button>
-            {isEmitida && (
-              <span
-                className="p-1.5 rounded text-[var(--color-text-muted)] cursor-help"
-                title="Las facturas emitidas no pueden ser modificadas según la normativa del SRI Ecuador"
-              >
-                <Lock size={13} />
-              </span>
-            )}
-          </div>
-        );
-      },
+      render: i => (
+        <div className="flex gap-1 items-center">
+          <button
+            onClick={() => handleDownloadPDF(i)}
+            className="p-1.5 rounded hover:bg-[var(--color-brand-500)]/10 text-[var(--color-brand-500)]"
+            title="Descargar factura"
+          >
+            <Download size={14} />
+          </button>
+          <button
+            onClick={() => handleDownloadXML(i)}
+            className="p-1.5 rounded hover:bg-blue-500/10 text-blue-500"
+            title="Descargar XML SRI"
+          >
+            <Code size={14} />
+          </button>
+        </div>
+      ),
     },
   ];
 
   const inp = "w-full px-3 py-2.5 rounded-lg bg-[var(--color-dashboard-input)] border border-[var(--color-dashboard-border)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] placeholder:text-[var(--color-text-muted)]/40";
   const selectedCust = customers.find(c => c.id === selectedCustomer);
 
-  /* ---- Loading / Error ---- */
   if (loadingInv) return <FullScreenLoader state="loading" message="Cargando facturación..." />;
   if (errorInv) return <ErrorState message={errorInv} onRetry={mutateInv} />;
 
@@ -189,13 +210,12 @@ export default function FacturacionPage() {
         }
       />
 
-      {/* STATS */}
+      {/* STATS — 3 cards, no "Anuladas" (Ecuador law: invoices cannot be voided) */}
       {stats && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StatCard label="Total Facturas" value={String(stats.total || 0)} icon={<FileText size={18} />} color="var(--color-brand-500)" />
           <StatCard label="Emitidas" value={String(stats.emitidas || 0)} icon={<CheckCircle2 size={18} />} color="#22c55e" />
-          <StatCard label="Anuladas" value={String(stats.anuladas || 0)} icon={<AlertCircle size={18} />} color="#ef4444" />
-          <StatCard label="Ingresos" value={formatCurrency(stats.totalRevenue || 0, config)} icon={<DollarSign size={18} />} color="var(--color-brand-500)" />
+          <StatCard label="Ingresos Totales" value={formatCurrency(stats.totalRevenue || 0, config)} icon={<DollarSign size={18} />} color="var(--color-brand-500)" />
         </div>
       )}
 
@@ -207,7 +227,6 @@ export default function FacturacionPage() {
             <button onClick={() => setShowForm(false)} className="p-1 rounded hover:bg-[var(--color-dashboard-surface-hover)]"><X size={18} className="text-[var(--color-text-muted)]" /></button>
           </div>
 
-          {/* Customer + Payment */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
             <div>
               <label className="block text-xs font-medium text-[var(--color-text-muted)] mb-1">Cliente *</label>
@@ -225,7 +244,6 @@ export default function FacturacionPage() {
             </div>
           </div>
 
-          {/* Quick Product Add */}
           {products.length > 0 && (
             <div className="mb-5">
               <label className="block text-xs font-medium text-[var(--color-text-muted)] mb-2">Agregar producto rápido</label>
@@ -239,7 +257,6 @@ export default function FacturacionPage() {
             </div>
           )}
 
-          {/* Line Items */}
           <div className="mb-5">
             <div className="flex justify-between items-center mb-2">
               <label className="text-xs font-medium text-[var(--color-text-muted)]">Detalle de productos</label>
@@ -284,7 +301,6 @@ export default function FacturacionPage() {
             </div>
           </div>
 
-          {/* Totals + Notes */}
           <div className="flex flex-col md:flex-row gap-4 justify-between mb-5">
             <div className="flex-1">
               <label className="block text-xs font-medium text-[var(--color-text-muted)] mb-1">Observaciones</label>
@@ -302,7 +318,6 @@ export default function FacturacionPage() {
             </div>
           </div>
 
-          {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[var(--color-dashboard-border)]">
             <button onClick={handleCreate} disabled={saving} type="button" className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition-colors disabled:opacity-50">
               {saving ? <><span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" /> Emitiendo...</> : <><FileText size={16} /> Emitir Factura</>}
@@ -379,14 +394,12 @@ export default function FacturacionPage() {
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por número o cliente..." className={`${inp} pl-9`} autoComplete="off" />
           </div>
 
-          {/* Desktop Table */}
           <div className="hidden md:block">
             <Card padding={false}>
               <DataTable columns={columns} data={filtered} emptyMessage="No hay facturas emitidas" caption="Historial de facturas" />
             </Card>
           </div>
 
-          {/* Mobile Cards */}
           <div className="md:hidden space-y-3">
             {filtered.length === 0 ? (
               <Card><p className="text-center text-[var(--color-text-muted)] py-4">No hay facturas emitidas</p></Card>
@@ -395,15 +408,17 @@ export default function FacturacionPage() {
                 <div className="flex justify-between items-start mb-2">
                   <span className="font-mono font-medium text-[var(--color-brand-500)] text-sm">{inv.invoiceNumber}</span>
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                    inv.estado === "EMITIDA" ? "bg-green-500/10 text-green-500" :
-                    inv.estado === "ANULADA" ? "bg-red-500/10 text-red-500" :
-                    "bg-yellow-500/10 text-yellow-500"
+                    inv.estado === "EMITIDA" ? "bg-green-500/10 text-green-500" : "bg-yellow-500/10 text-yellow-500"
                   }`}>{inv.estado}</span>
                 </div>
                 <p className="text-sm text-[var(--color-text-primary)]">{inv.customer?.razonSocial || "—"}</p>
                 <div className="flex justify-between items-center mt-2">
                   <span className="text-xs text-[var(--color-text-muted)]">{inv.fechaEmision ? new Date(inv.fechaEmision).toLocaleDateString("es-EC") : "—"}</span>
                   <span className="font-semibold">{formatCurrency(inv.importeTotal || 0, config)}</span>
+                </div>
+                <div className="flex gap-2 mt-3 pt-2 border-t border-[var(--color-dashboard-border)]">
+                  <button onClick={() => handleDownloadPDF(inv)} className="text-xs text-[var(--color-brand-500)] hover:underline flex items-center gap-1"><Download size={12} /> Factura</button>
+                  <button onClick={() => handleDownloadXML(inv)} className="text-xs text-blue-500 hover:underline flex items-center gap-1"><Code size={12} /> XML</button>
                 </div>
               </Card>
             ))}

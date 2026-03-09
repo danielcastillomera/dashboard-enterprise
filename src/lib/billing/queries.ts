@@ -257,11 +257,10 @@ export async function createInvoiceAndNotify(tenantId: string, data: Parameters<
 }
 
 export async function getInvoiceStats(tenantId: string) {
-  const [total, emitidas, anuladas, totalRevenue] = await Promise.all([
+  const [total, emitidas, totalRevenue] = await Promise.all([
     prisma.invoice.count({ where: { tenantId } }),
     prisma.invoice.count({ where: { tenantId, estado: "EMITIDA" } }),
-    prisma.invoice.count({ where: { tenantId, estado: "ANULADA" } }),
     prisma.invoice.aggregate({ where: { tenantId, estado: "EMITIDA" }, _sum: { importeTotal: true } }),
   ]);
-  return { total, emitidas, anuladas, totalRevenue: totalRevenue._sum.importeTotal || 0 };
+  return { total, emitidas, totalRevenue: totalRevenue._sum.importeTotal || 0 };
 }
