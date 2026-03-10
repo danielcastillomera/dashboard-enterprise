@@ -30,7 +30,7 @@ export function SalesTrendChart({ data }: SalesTrendChartProps) {
           stroke="var(--color-text-muted)"
           fontSize={12}
           tickLine={false}
-          tickFormatter={(v) => `Q${v}`}
+          tickFormatter={(v) => `$${v}`}
         />
         <Tooltip
           contentStyle={{
@@ -41,7 +41,7 @@ export function SalesTrendChart({ data }: SalesTrendChartProps) {
             fontSize: 13,
           }}
           formatter={(value, dataKey) => [
-            `Q ${Number(value).toLocaleString()}`,
+            `$${Number(value).toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
             dataKey,
           ]}
         />

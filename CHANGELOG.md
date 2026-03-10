@@ -1,5 +1,48 @@
 # Changelog
 
+## v2.5.0 — Input Validation, Currency Fix, Security, Cross-Browser, License
+
+### Real-Time Input Validation
+- **Configuración > RUC**: Digits-only, max 13 characters, `inputMode="numeric"` for mobile keyboards.
+- **Configuración > Teléfono**: Digits-only, max 15 characters.
+- **Configuración > Establecimiento/Punto Emisión**: Digits-only, max 3 characters.
+- All numeric fields across the dashboard use `type="number"` with appropriate `min`, `max`, `step` constraints.
+- Clientes page already has Ecuador-specific validation (cédula 10 digits, RUC 13, celular 09XX 10 digits, fijo 02-07 9 digits).
+
+### Currency Fix — Charts & Reports
+- **Fixed Q (Quetzales) → $ (USD)** in sales trend chart Y-axis (`$${v}` instead of `Q${v}`).
+- **Fixed Q → $** in category chart tooltip.
+- All currency values across Panel de Control and Reportes now use `formatCurrency()` which outputs `$X.XX` for Ecuador (USD).
+
+### Security Hardening
+- **HTTP Security Headers** (next.config.ts): X-Frame-Options SAMEORIGIN, X-Content-Type-Options nosniff, X-XSS-Protection, Strict-Transport-Security, Content-Security-Policy, Referrer-Policy, Permissions-Policy.
+- **`poweredByHeader: false`** — Removes X-Powered-By header to prevent technology fingerprinting.
+- **Enhanced proxy.ts** — Better route protection with explicit public routes (store, health, auth).
+- **Supabase RLS** — All tables have Row Level Security enabled with tenant-scoped policies.
+- **Server-side auth** — All API routes verify user session via `getCurrentTenantId()`.
+
+### Cross-Browser Compatibility
+- **X-UA-Compatible IE=edge** meta tag for legacy browser rendering.
+- **`viewport`** with device-width and initial-scale already set.
+- Built on Next.js 16 + Tailwind CSS 4 which support all modern browsers (Chrome 80+, Firefox 78+, Safari 14+, Edge 80+).
+- Responsive design with mobile-first approach: cards on mobile, tables on desktop.
+
+### License & Copyright
+- **LICENSE** file: Proprietary software license — all rights reserved to Daniel Fernando Castillo Mera.
+- **Copyright metadata** in `<head>`: author, creator, copyright notice.
+- **`robots: { index: false, follow: false }`** — prevents search engines from indexing the dashboard.
+
+### Files Added/Modified
+- New: `LICENSE`
+- Modified: `next.config.ts` (security headers)
+- Modified: `src/proxy.ts` (enhanced route protection)
+- Modified: `src/app/layout.tsx` (copyright metadata)
+- Modified: `src/components/charts/sales-trend-chart.tsx` ($ instead of Q)
+- Modified: `src/components/charts/category-chart.tsx` ($ instead of Q)
+- Modified: `src/app/(dashboard)/configuracion/page.tsx` (input validation)
+
+---
+
 ## v2.4.0 — Professional PDF RIDE, PDF Viewer, XML Viewer
 
 ### Professional PDF Generation (RIDE Format)

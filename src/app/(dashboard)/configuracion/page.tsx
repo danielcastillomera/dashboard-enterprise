@@ -223,7 +223,7 @@ function SectionPerfil({ form, errors, set }: { form: BusinessProfile; errors: F
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className={labelCls}>R.U.C. *</label>
-          <input value={form.ruc} onChange={e => set("ruc", e.target.value)} onBlur={() => set("ruc", form.ruc.trim())} placeholder="Ej: 0990000000001" maxLength={13} className={errors.ruc ? inputErrCls : inputCls} />
+          <input value={form.ruc} onChange={e => { const v = e.target.value.replace(/\D/g, ""); if (v.length <= 13) set("ruc", v); }} onBlur={() => set("ruc", form.ruc.trim())} placeholder="Ej: 0990000000001" maxLength={13} inputMode="numeric" className={errors.ruc ? inputErrCls : inputCls} />
           <FieldErr msg={errors.ruc} />
         </div>
         <div>
@@ -275,7 +275,7 @@ function SectionContacto({ form, errors, set }: { form: BusinessProfile; errors:
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div>
         <label className={labelCls}>Teléfono</label>
-        <input value={form.telefono} onChange={e => set("telefono", e.target.value)} placeholder="Ej: (04) 2000000" className={errors.telefono ? inputErrCls : inputCls} />
+        <input value={form.telefono} onChange={e => { const v = e.target.value.replace(/\D/g, ""); if (v.length <= 15) set("telefono", v); }} inputMode="numeric" placeholder="Ej: 042000000" className={errors.telefono ? inputErrCls : inputCls} />
         <FieldErr msg={errors.telefono} />
       </div>
       <div>
@@ -318,12 +318,12 @@ function SectionFacturacion({ form, errors, set }: { form: BusinessProfile; erro
       </div>
       <div>
         <label className={labelCls}>Establecimiento *</label>
-        <input value={form.establishment} onChange={e => set("establishment", e.target.value)} maxLength={3} placeholder="001" className={errors.establishment ? inputErrCls : inputCls} />
+        <input value={form.establishment} onChange={e => { const v = e.target.value.replace(/\D/g, ""); if (v.length <= 3) set("establishment", v); }} maxLength={3} inputMode="numeric" placeholder="001" className={errors.establishment ? inputErrCls : inputCls} />
         <FieldErr msg={errors.establishment} />
       </div>
       <div>
         <label className={labelCls}>Punto de Emisión *</label>
-        <input value={form.emissionPoint} onChange={e => set("emissionPoint", e.target.value)} maxLength={3} placeholder="001" className={errors.emissionPoint ? inputErrCls : inputCls} />
+        <input value={form.emissionPoint} onChange={e => { const v = e.target.value.replace(/\D/g, ""); if (v.length <= 3) set("emissionPoint", v); }} maxLength={3} inputMode="numeric" placeholder="001" className={errors.emissionPoint ? inputErrCls : inputCls} />
         <FieldErr msg={errors.emissionPoint} />
       </div>
       <div>

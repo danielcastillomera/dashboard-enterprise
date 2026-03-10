@@ -30,19 +30,27 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAuthPage =
-    request.nextUrl.pathname === "/login" ||
-    request.nextUrl.pathname === "/registro" ||
-    request.nextUrl.pathname === "/recuperar-password";
+  const { pathname } = request.nextUrl;
 
-  // Si NO hay usuario y NO está en una página de auth → redirigir al login
-  if (!user && !isAuthPage) {
+  const isAuthPage =
+    pathname === "/login" ||
+    pathname === "/registro" ||
+    pathname === "/recuperar-password";
+
+  const isPublicRoute =
+    isAuthPage ||
+    pathname.startsWith("/auth/callback") ||
+    pathname.startsWith("/api/health") ||
+    pathname.startsWith("/store");
+
+  // If NOT authenticated and NOT on public route → redirect to login
+  if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  // Si HAY usuario y ESTÁ en una página de auth → redirigir al panel
+  // If authenticated and on auth page → redirect to dashboard
   if (user && isAuthPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/panel";

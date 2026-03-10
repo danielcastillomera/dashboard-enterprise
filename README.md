@@ -149,4 +149,6 @@ Configurar las variables de entorno en Vercel Dashboard > Settings > Environment
 
 ## Licencia
 
-Proyecto privado. Todos los derechos reservados.
+**Propiedad intelectual de Daniel Fernando Castillo Mera.**
+
+Este software es privado y confidencial. Queda estrictamente prohibida la clonación, copia, distribución o uso no autorizado de este proyecto sin previo permiso escrito del titular. Ver archivo [LICENSE](./LICENSE) para términos completos.

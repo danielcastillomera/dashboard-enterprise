@@ -45,7 +45,7 @@ export function CategoryChart({ data }: CategoryChartProps) {
             fontSize: 13,
           }}
           formatter={(value) => [
-            `Q ${Number(value).toLocaleString()}`,
+            `$${Number(value).toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
             "Ventas",
           ]}
         />

@@ -8,7 +8,13 @@ export const metadata: Metadata = {
     template: "%s | Dashboard Enterprise",
   },
   description: "Sistema de gestión empresarial multi-industria. Control de ventas, inventario, compras y pedidos.",
-  robots: { index: false, follow: false }, // Dashboard privado, no indexar
+  robots: { index: false, follow: false },
+  authors: [{ name: "Daniel Fernando Castillo Mera" }],
+  creator: "Daniel Fernando Castillo Mera",
+  other: {
+    "copyright": "© 2024-2026 Daniel Fernando Castillo Mera. All Rights Reserved.",
+    "X-UA-Compatible": "IE=edge",
+  },
 };
 
 export const viewport: Viewport = {
