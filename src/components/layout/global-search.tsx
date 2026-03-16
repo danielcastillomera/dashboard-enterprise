@@ -158,20 +158,21 @@ export function GlobalSearch() {
 
   return (
     <>
-      {/* Trigger — Barra de búsqueda en el header */}
+      {/* Trigger — Icon on mobile, full bar on desktop */}
       <button
         onClick={() => setOpen(true)}
-        className="relative flex-1 max-w-md flex items-center gap-2 px-3 py-2 text-sm rounded-xl
+        className="relative flex items-center gap-2 px-3 py-2 text-sm rounded-xl
           bg-[var(--color-dashboard-surface)]
           border border-[var(--color-dashboard-border)]
           text-[var(--color-text-muted)]
           hover:border-[var(--color-brand-500)]/50
-          transition-colors cursor-text"
+          transition-colors cursor-text
+          sm:flex-1 sm:max-w-md"
         aria-label="Buscar en el dashboard (Ctrl+K)"
       >
         <Search size={16} />
-        <span className="flex-1 text-left">Buscar productos, pedidos...</span>
-        <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-[var(--color-dashboard-bg)] border border-[var(--color-dashboard-border)] text-[10px] font-mono text-[var(--color-text-muted)]">
+        <span className="hidden sm:block flex-1 text-left">Buscar productos, pedidos...</span>
+        <kbd className="hidden md:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-[var(--color-dashboard-bg)] border border-[var(--color-dashboard-border)] text-[10px] font-mono text-[var(--color-text-muted)]">
           Ctrl K
         </kbd>
       </button>

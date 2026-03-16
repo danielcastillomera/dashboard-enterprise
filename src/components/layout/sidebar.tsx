@@ -125,7 +125,7 @@ export function Sidebar({
       {/* Footer del sidebar */}
       <div className="px-4 py-3 border-t border-[var(--color-dashboard-border)]">
         <p className="text-[10px] text-[var(--color-text-muted)] text-center">
-          Sistema de Gestión v2.6.0
+          Sistema de Gestión v2.7.0
         </p>
       </div>
     </aside>

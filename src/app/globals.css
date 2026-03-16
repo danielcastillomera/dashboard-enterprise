@@ -50,8 +50,8 @@
   --color-dashboard-border: #334155;
   --color-dashboard-sidebar: #1A1A2E;
   --color-text-primary: #F9FAFB;
-  --color-text-secondary: #94A3B8;
-  --color-text-muted: #64748B;
+  --color-text-secondary: #CBD5E1;
+  --color-text-muted: #94A3B8;
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow-dropdown: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
@@ -67,7 +67,7 @@
   --color-dashboard-sidebar: #FFFFFF;
   --color-text-primary: #0F172A;
   --color-text-secondary: #475569;
-  --color-text-muted: #94A3B8;
+  --color-text-muted: #64748B;
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-dropdown: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
@@ -78,6 +78,8 @@
 body {
   font-family: var(--font-sans);
   background-color: var(--color-dashboard-bg);
+  color: var(--color-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

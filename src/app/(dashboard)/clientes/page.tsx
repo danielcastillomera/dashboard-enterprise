@@ -225,14 +225,14 @@ export default function ClientesPage() {
   ];
 
   /* ---- STYLES ---- */
-  const inp = "w-full px-3 py-2.5 rounded-lg bg-[var(--color-dashboard-input)] border border-[var(--color-dashboard-border)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] placeholder:text-[var(--color-text-muted)]/40";
+  const inp = "w-full px-3 py-2.5 rounded-lg bg-[var(--color-dashboard-input)] border border-[var(--color-dashboard-border)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] placeholder:text-[var(--color-text-muted)]/70";
   const inpErr = inp.replace("border-[var(--color-dashboard-border)]", "border-red-500").replace("focus:ring-[var(--color-brand-500)]", "focus:ring-red-500");
   const lbl = "block text-xs font-medium text-[var(--color-text-muted)] mb-1.5";
   const errMsg = "text-xs text-red-500 mt-1";
   const idMax = form.tipoIdentificacion === "04" ? 13 : form.tipoIdentificacion === "05" ? 10 : 20;
 
   /* ---- LOADING / ERROR ---- */
-  if (isLoading) return <FullScreenLoader state="loading" message="Cargando clientes..." />;
+  if (isLoading) return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-8 w-8 border-2 border-[var(--color-brand-500)] border-t-transparent" /></div>;
   if (error) return <ErrorState message={error} onRetry={mutate} />;
 
   return (

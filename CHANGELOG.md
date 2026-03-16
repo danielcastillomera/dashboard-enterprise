@@ -1,5 +1,33 @@
 # Changelog
 
+## v2.7.0 — Mobile UX, Dark Mode Fix, Theme Animation, Authorship
+
+### Mobile Responsiveness
+- **Global search** — Shows only magnifying glass icon on mobile, full search bar on desktop (`sm:` breakpoint).
+- **Export dropdown** — Fixed overflow on mobile with `max-w-[calc(100vw-2rem)]` so menu is fully visible.
+- **Admin menu** — Avatar button works on mobile (click to open), text label visible on `sm:` screens.
+
+### Dark Mode Fix
+- **Improved text visibility** — Dark mode `--color-text-muted` changed from `#64748B` to `#94A3B8` (brighter).
+- **Dark mode `--color-text-secondary`** changed from `#94A3B8` to `#CBD5E1` for better subtitle readability.
+- **Light mode `--color-text-muted`** adjusted to `#64748B` for proper contrast on white backgrounds.
+
+### Theme Animation
+- **Smooth theme transition** — Added `transition: background-color 0.3s ease, color 0.3s ease` to body.
+- **Toggle button animation** — Active theme icon scales up with shadow (`scale-110 shadow-md`).
+
+### Input Visibility
+- **Search input placeholders** — Changed opacity from `/40` (40%) to `/70` (70%) for better visibility in both themes.
+
+### Loading States
+- **Removed FullScreenLoader** from Clientes and Facturación initial page loads — replaced with simple inline spinner for faster perceived performance.
+
+### Authorship & Metadata
+- **Removed all AI references** — PDF footer now reads "Desarrollado por Daniel Fernando Castillo Mera".
+- **Author metadata confirmed** — `<meta>` tags show Daniel Fernando Castillo Mera as author, creator, and copyright holder.
+
+---
+
 ## v2.6.0 — Ecuador-Only, XLSX Export, Formas de Pago, UI Fixes
 
 ### Formas de Pago (Tabla 24 SRI)

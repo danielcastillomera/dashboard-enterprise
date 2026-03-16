@@ -226,7 +226,7 @@ function RideDocument({ data }: { data: RideData }) {
 
         {/* FOOTER */}
         <Text style={s.footer}>
-          Documento generado electrónicamente — Dashboard Enterprise v2.4.0
+          Documento generado electrónicamente — Desarrollado por Daniel Fernando Castillo Mera
         </Text>
       </Page>
     </Document>

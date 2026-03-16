@@ -26,10 +26,10 @@ export function ThemeToggle() {
           aria-checked={theme === value}
           aria-label={label}
           title={label}
-          className={`p-1.5 rounded-md transition-colors duration-200 ${
+          className={`p-1.5 rounded-md transition-all duration-300 ease-in-out ${
             theme === value
-              ? "bg-[var(--color-brand-500)] text-[var(--color-dashboard-bg)]"
-              : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+              ? "bg-[var(--color-brand-500)] text-[var(--color-dashboard-bg)] scale-110 shadow-md"
+              : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] scale-100"
           }`}
         >
           <Icon size={14} />

@@ -107,10 +107,10 @@ export default function FacturacionPage() {
     },
   ];
 
-  const inp = "w-full px-3 py-2.5 rounded-lg bg-[var(--color-dashboard-input)] border border-[var(--color-dashboard-border)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] placeholder:text-[var(--color-text-muted)]/40";
+  const inp = "w-full px-3 py-2.5 rounded-lg bg-[var(--color-dashboard-input)] border border-[var(--color-dashboard-border)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] placeholder:text-[var(--color-text-muted)]/70";
   const selectedCust = customers.find(c => c.id === selectedCustomer);
 
-  if (loadingInv) return <FullScreenLoader state="loading" message="Cargando facturación..." />;
+  if (loadingInv) return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-8 w-8 border-2 border-[var(--color-brand-500)] border-t-transparent" /></div>;
   if (errorInv) return <ErrorState message={errorInv} onRetry={mutateInv} />;
 
   return (
