@@ -19,7 +19,7 @@ interface DashboardData {
 
 export default function ReportesPage() {
   const config = getActiveTenantConfig();
-  const { handleExportCSV: exportCSV, handleExportPDF: exportPDF } = useExport();
+  const { handleExportCSV: exportCSV, handleExportPDF: exportPDF, handleExportXLSX: exportXLSX } = useExport();
   const [view, setView] = useState<ReportView>("General");
   const [showExportMenu, setShowExportMenu] = useState(false);
 
@@ -37,6 +37,8 @@ export default function ReportesPage() {
   ];
 
   function handleExportCSV() { exportCSV(reportData as unknown as Record<string, unknown>[], reportExportColumns, `reporte_${new Date().toISOString().split("T")[0]}`); setShowExportMenu(false); }
+  async function handleExportXLSX() { await exportXLSX(reportData as unknown as Record<string, unknown>[], reportExportColumns, `reporte_${new Date().toISOString().split("T")[0]}`); setShowExportMenu(false); }
+
   async function handleExportPDF() { await exportPDF(reportData as unknown as Record<string, unknown>[], reportExportColumns, `Reporte General — ${config.name}`, `reporte_${new Date().toISOString().split("T")[0]}`); setShowExportMenu(false); }
 
   if (error) return <ErrorState message={error} onRetry={mutate} />;
@@ -51,6 +53,7 @@ export default function ReportesPage() {
               <div className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-[var(--color-dashboard-surface)] border border-[var(--color-dashboard-border)] shadow-lg py-1 z-50">
                 <button onClick={handleExportCSV} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-dashboard-surface-hover)] transition-colors"><FileSpreadsheet size={14} className="text-green-500" /> CSV</button>
                 <button onClick={handleExportPDF} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-dashboard-surface-hover)] transition-colors"><FileText size={14} className="text-red-500" /> PDF</button>
+                <button onClick={handleExportXLSX} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-dashboard-surface-hover)] transition-colors"><FileSpreadsheet size={14} className="text-green-600" /> Excel (.xlsx)</button>
               </div>
             )}
           </div>

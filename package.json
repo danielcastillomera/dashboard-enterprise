@@ -1,6 +1,6 @@
 {
   "name": "dashboard-enterprise",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "private": true,
   "description": "Dashboard multi-panel empresarial - Plantilla adaptable multi-industria",
   "scripts": {
@@ -43,6 +43,7 @@
     "swr": "^2.4.1",
     "tailwindcss": "^4.2.0",
     "typescript": "^5.9.3",
+    "xlsx": "^0.18.5",
     "zod": "^4.3.6"
   },
   "devDependencies": {

@@ -1,5 +1,29 @@
 # Changelog
 
+## v2.6.0 — Ecuador-Only, XLSX Export, Formas de Pago, UI Fixes
+
+### Formas de Pago (Tabla 24 SRI)
+- **EFECTIVO** (código 01) — Previously showed "SIN UTILIZACIÓN DEL SISTEMA FINANCIERO", now shows "EFECTIVO".
+- **TRANSFERENCIA / DEPÓSITO BANCARIO** (código 20) — Previously "OTROS CON UTILIZACIÓN DEL SISTEMA FINANCIERO".
+- All 8 formas de pago from SRI Tabla 24 are available with user-friendly labels.
+
+### Excel Export (.xlsx)
+- Added **Excel (.xlsx) export** button to ALL modules: Ventas, Compras, Inventario, Productos, Pedidos, Reportes.
+- Uses SheetJS library for professional Excel file generation with auto-width columns.
+- Export dropdown now shows 3 options: CSV, PDF, Excel (.xlsx).
+
+### Ecuador-Only Configuration
+- **Regional settings locked to Ecuador** — Language (Español), Timezone (America/Guayaquil UTC-5), Currency (USD), Date Format (DD/MM/AAAA) are now read-only with informational note.
+- Removed international timezone, currency, and language selectors.
+
+### UI Fixes
+- **Config card descriptions no longer truncated** — Removed `truncate` CSS class so full description text shows on configuration section cards.
+
+### Dependencies
+- Added: `xlsx` (SheetJS) for Excel export.
+
+---
+
 ## v2.5.0 — Input Validation, Currency Fix, Security, Cross-Browser, License
 
 ### Real-Time Input Validation

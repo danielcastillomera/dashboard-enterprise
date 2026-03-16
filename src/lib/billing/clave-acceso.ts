@@ -46,13 +46,13 @@ export function formatInvoiceNumber(estab: string, ptoEmi: string, seq: number):
 }
 
 export const FORMAS_PAGO: Record<string, string> = {
-  "01": "SIN UTILIZACIÓN DEL SISTEMA FINANCIERO",
+  "01": "EFECTIVO",
   "15": "COMPENSACIÓN DE DEUDAS",
   "16": "TARJETA DE DÉBITO",
   "17": "DINERO ELECTRÓNICO",
   "18": "TARJETA PREPAGO",
   "19": "TARJETA DE CRÉDITO",
-  "20": "OTROS CON UTILIZACIÓN DEL SISTEMA FINANCIERO",
+  "20": "TRANSFERENCIA / DEPÓSITO BANCARIO",
   "21": "ENDOSO DE TÍTULOS",
 };
 

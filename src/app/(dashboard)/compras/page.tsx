@@ -26,7 +26,7 @@ interface Product {
 
 export default function ComprasPage() {
   const config = getActiveTenantConfig();
-  const { handleExportCSV: exportCSV, handleExportPDF: exportPDF } = useExport();
+  const { handleExportCSV: exportCSV, handleExportPDF: exportPDF, handleExportXLSX: exportXLSX } = useExport();
   const { startCriticalOperation, endCriticalOperation } = useOperationGuard();
   const [showForm, setShowForm] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
@@ -94,6 +94,8 @@ export default function ComprasPage() {
     { key: "date", header: "Fecha" },
   ];
   function handleExportCSV() { exportCSV(purchases as unknown as Record<string, unknown>[], exportColumns, `compras_${new Date().toISOString().split("T")[0]}`); setShowExportMenu(false); }
+  async function handleExportXLSX() { await exportXLSX(purchases as unknown as Record<string, unknown>[], exportColumns, `compras_${new Date().toISOString().split("T")[0]}`); setShowExportMenu(false); }
+
   async function handleExportPDF() { await exportPDF(purchases as unknown as Record<string, unknown>[], exportColumns, `Reporte de Compras — ${config.name}`, `compras_${new Date().toISOString().split("T")[0]}`); setShowExportMenu(false); }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -149,6 +151,7 @@ export default function ComprasPage() {
                 <div className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-[var(--color-dashboard-surface)] border border-[var(--color-dashboard-border)] shadow-lg py-1 z-50">
                   <button onClick={handleExportCSV} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-dashboard-surface-hover)] transition-colors"><FileSpreadsheet size={14} className="text-green-500" /> CSV</button>
                   <button onClick={handleExportPDF} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-dashboard-surface-hover)] transition-colors"><FileText size={14} className="text-red-500" /> PDF</button>
+                <button onClick={handleExportXLSX} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-dashboard-surface-hover)] transition-colors"><FileSpreadsheet size={14} className="text-green-600" /> Excel (.xlsx)</button>
                 </div>
               )}
             </div>

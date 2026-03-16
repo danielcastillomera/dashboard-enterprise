@@ -176,3 +176,30 @@ function downloadBlob(blob: Blob, filename: string): void {
   URL.revokeObjectURL(url);
 }
 
+/** Exportar datos a Excel (.xlsx) con SheetJS */
+export async function exportToXLSX<T extends Record<string, unknown>>(
+  data: T[],
+  columns: { key: string; header: string }[],
+  filename: string,
+  sheetName = "Datos"
+): Promise<void> {
+  if (data.length === 0) return;
+  const XLSX = await import("xlsx");
+  const rows = data.map((row) =>
+    Object.fromEntries(
+      columns.map((col) => {
+        const val = row[col.key];
+        const str = val instanceof Date ? val.toLocaleDateString("es-EC") : (val ?? "");
+        return [col.header, str];
+      })
+    )
+  );
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws["!cols"] = columns.map((col) => ({
+    wch: Math.min(Math.max(col.header.length, ...data.map((r) => String(r[col.key] ?? "").length)) + 4, 40),
+  }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  XLSX.writeFile(wb, `${filename}.xlsx`);
+}
+

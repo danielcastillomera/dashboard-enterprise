@@ -27,7 +27,7 @@ interface Product {
 
 export default function VentasPage() {
   const config = getActiveTenantConfig();
-  const { handleExportCSV: exportCSV, handleExportPDF: exportPDF } = useExport();
+  const { handleExportCSV: exportCSV, handleExportPDF: exportPDF, handleExportXLSX: exportXLSX } = useExport();
   const { startCriticalOperation, endCriticalOperation } = useOperationGuard();
   const [filter, setFilter] = useState("Todas");
   const [showForm, setShowForm] = useState(false);
@@ -115,6 +115,9 @@ export default function VentasPage() {
   ];
   function handleExportCSV() {
     exportCSV(sales as unknown as Record<string, unknown>[], exportColumns, `ventas_${new Date().toISOString().split("T")[0]}`);
+  }
+  async function handleExportXLSX() {
+    await exportXLSX(sales as unknown as Record<string, unknown>[], exportColumns, `ventas_${new Date().toISOString().split("T")[0]}`);
     setShowExportMenu(false);
   }
   async function handleExportPDF() {
@@ -190,6 +193,8 @@ export default function VentasPage() {
                     <FileSpreadsheet size={14} className="text-green-500" /> CSV</button>
                   <button onClick={handleExportPDF} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-dashboard-surface-hover)] transition-colors">
                     <FileText size={14} className="text-red-500" /> PDF</button>
+                  <button onClick={handleExportXLSX} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-dashboard-surface-hover)] transition-colors">
+                    <FileSpreadsheet size={14} className="text-green-600" /> Excel (.xlsx)</button>
                 </div>
               )}
             </div>

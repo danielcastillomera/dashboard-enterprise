@@ -336,30 +336,28 @@ function SectionFacturacion({ form, errors, set }: { form: BusinessProfile; erro
 
 function SectionRegional({ form, set }: { form: BusinessProfile; set: (k: keyof BusinessProfile, v: unknown) => void }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div>
-        <label className={labelCls}>Idioma</label>
-        <select value={form.language} onChange={e => set("language", e.target.value)} className={inputCls}>
-          {LANGUAGES.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
-        </select>
+    <div className="space-y-4">
+      <div className="rounded-lg bg-[var(--color-brand-500)]/5 border border-[var(--color-brand-500)]/20 p-4">
+        <p className="text-sm text-[var(--color-text-primary)] font-medium">Configuración regional — Ecuador</p>
+        <p className="text-xs text-[var(--color-text-muted)] mt-1">Esta versión del sistema opera exclusivamente en la República del Ecuador conforme a la normativa del SRI.</p>
       </div>
-      <div>
-        <label className={labelCls}>Zona Horaria</label>
-        <select value={form.timezone} onChange={e => set("timezone", e.target.value)} className={inputCls}>
-          {TIMEZONES.map(tz => <option key={tz} value={tz}>{tz}</option>)}
-        </select>
-      </div>
-      <div>
-        <label className={labelCls}>Moneda</label>
-        <select value={form.currency} onChange={e => set("currency", e.target.value)} className={inputCls}>
-          {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
-      </div>
-      <div>
-        <label className={labelCls}>Formato de Fecha</label>
-        <select value={form.dateFormat} onChange={e => set("dateFormat", e.target.value)} className={inputCls}>
-          {DATE_FORMATS.map(f => <option key={f} value={f}>{f}</option>)}
-        </select>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className={labelCls}>Idioma</label>
+          <input value="Español (Ecuador)" readOnly className={`${inputCls} opacity-60 cursor-not-allowed`} />
+        </div>
+        <div>
+          <label className={labelCls}>Zona Horaria</label>
+          <input value="America/Guayaquil (UTC-5)" readOnly className={`${inputCls} opacity-60 cursor-not-allowed`} />
+        </div>
+        <div>
+          <label className={labelCls}>Moneda</label>
+          <input value="USD — Dólar Estadounidense" readOnly className={`${inputCls} opacity-60 cursor-not-allowed`} />
+        </div>
+        <div>
+          <label className={labelCls}>Formato de Fecha</label>
+          <input value="DD/MM/AAAA" readOnly className={`${inputCls} opacity-60 cursor-not-allowed`} />
+        </div>
       </div>
     </div>
   );
@@ -588,8 +586,8 @@ export default function ConfiguracionPage() {
               {sec.icon}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm text-[var(--color-text-primary)] truncate">{sec.name}</p>
-              <p className="text-xs text-[var(--color-text-muted)] mt-0.5 truncate">{sec.description}</p>
+              <p className="font-semibold text-sm text-[var(--color-text-primary)]">{sec.name}</p>
+              <p className="text-xs text-[var(--color-text-muted)] mt-0.5 leading-relaxed">{sec.description}</p>
             </div>
             <ChevronRight size={16} className="text-[var(--color-text-muted)] shrink-0 group-hover:text-[var(--color-brand-500)] transition-colors" />
           </button>

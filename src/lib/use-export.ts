@@ -2,7 +2,7 @@
 
 import { useRef, useCallback } from "react";
 import { useToast } from "@/components/ui";
-import { exportToCSV, exportToPDF } from "@/lib/export-utils";
+import { exportToCSV, exportToPDF, exportToXLSX } from "@/lib/export-utils";
 
 /* ============================================
    useExport HOOK — ENTERPRISE
@@ -77,5 +77,24 @@ export function useExport() {
     [addToast, updateToast]
   );
 
-  return { handleExportCSV, handleExportPDF, addToast, removeToast, updateToast };
+  const handleExportXLSX = useCallback(
+    async (data: Record<string, unknown>[], columns: { key: string; header: string }[], filename: string) => {
+      cancelledRef.current = false;
+      const toastId = addToast({ message: "Generando Excel...", variant: "loading",
+        onCancel: () => { cancelledRef.current = true; updateToast(toastId, { message: "Exportación cancelada", variant: "error", duration: 3000 }); },
+      });
+      try {
+        await new Promise((r) => setTimeout(r, 400));
+        if (cancelledRef.current) return;
+        await exportToXLSX(data, columns, filename);
+        if (cancelledRef.current) return;
+        updateToast(toastId, { message: "¡Archivo Excel generado!", variant: "success" });
+      } catch {
+        if (!cancelledRef.current) updateToast(toastId, { message: "Error al generar Excel", variant: "error" });
+      }
+    },
+    [addToast, updateToast]
+  );
+
+  return { handleExportCSV, handleExportPDF, handleExportXLSX, addToast, removeToast, updateToast };
 }
