@@ -1,5 +1,32 @@
 # Changelog
 
+## v2.8.0 — Mobile PDF Fix, Logout, Search UX, Security Policy, Wiki
+
+### Mobile PDF Viewer Fix
+- **Fixed "Este contenido está bloqueado" error** on mobile — The CSP header was missing `frame-src 'self' blob:` which blocked PDF iframes on mobile browsers.
+- **Mobile fallback:** On screens smaller than `sm:` breakpoint, the PDF viewer now shows a download button instead of an iframe, since most mobile browsers cannot render PDFs inline.
+- **Print button** hidden on mobile (not supported).
+
+### Mobile Sidebar Logout
+- **Added "Cerrar sesión" button** to the sidebar footer, visible only on mobile (`lg:hidden`).
+- **Added "Configuración" link** to sidebar footer for quick access on mobile.
+
+### Search UX Improvements
+- **Added visible X close button** next to the search input to close the search modal. Previously only Esc key and overlay click worked.
+- **Fixed mobile overflow** — Search modal now uses `mx-4` margin on mobile instead of full width, preventing edge clipping.
+- **Positioned at 10% from top on mobile** (vs 15% on desktop) for better thumb reach.
+
+### Export Dropdown Fix
+- **Fixed mobile overflow** on all 6 export menus (Ventas, Compras, Inventario, Productos, Pedidos, Reportes) — uses `min-w-[180px] max-w-[calc(100vw-3rem)]` to prevent clipping.
+
+### Security Policy
+- Added `SECURITY.md` — Instructions for responsible vulnerability disclosure, supported versions, security measures overview, response times.
+
+### Wiki (separate from zip)
+- 6 Wiki pages for GitHub: Home, Inicio rápido, Arquitectura, Módulos, Facturación electrónica, Seguridad, FAQ.
+
+---
+
 ## v2.7.0 — Mobile UX, Dark Mode Fix, Theme Animation, Authorship
 
 ### Mobile Responsiveness

@@ -5,8 +5,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { getActiveTenantConfig, getEnabledModules } from "@/lib/tenant-config";
 import {
   Home, ShoppingCart, Package, Boxes, Truck,
-  Tag, BarChart3, Settings, X, FileText, Users,
+  Tag, BarChart3, Settings, X, FileText, Users, LogOut,
 } from "lucide-react";
+import { logoutAction } from "@/lib/actions/auth";
 
 /* ============================================
    SIDEBAR ENTERPRISE
@@ -123,9 +124,24 @@ export function Sidebar({
       </nav>
 
       {/* Footer del sidebar */}
-      <div className="px-4 py-3 border-t border-[var(--color-dashboard-border)]">
-        <p className="text-[10px] text-[var(--color-text-muted)] text-center">
-          Sistema de Gestión v2.7.0
+      <div className="px-3 py-3 border-t border-[var(--color-dashboard-border)] space-y-1">
+        <Link
+          href="/configuracion"
+          onClick={() => onClose?.()}
+          className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-dashboard-surface)] transition-colors lg:hidden"
+        >
+          <Settings size={18} /> Configuración
+        </Link>
+        <form action={logoutAction} className="lg:hidden">
+          <button
+            type="submit"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[var(--color-status-error)] hover:bg-[var(--color-status-error)]/10 transition-colors"
+          >
+            <LogOut size={18} /> Cerrar sesión
+          </button>
+        </form>
+        <p className="text-[10px] text-[var(--color-text-muted)] text-center pt-1">
+          Sistema de Gestión v2.8.0
         </p>
       </div>
     </aside>

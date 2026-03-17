@@ -131,16 +131,22 @@ export default function FacturacionPage() {
       {/* PDF VIEWER MODAL */}
       {viewPdfUrl && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4" onClick={() => setViewPdfUrl(null)}>
-          <div className="bg-white rounded-xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center px-4 py-3 border-b bg-gray-50">
-              <span className="font-semibold text-gray-800 text-sm">Vista Previa de Factura</span>
+          <div className="bg-white rounded-xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex flex-wrap justify-between items-center gap-2 px-4 py-3 border-b bg-gray-50">
+              <span className="font-semibold text-gray-800 text-sm">Vista Previa</span>
               <div className="flex gap-2 items-center">
                 <button onClick={() => { const a = document.createElement("a"); a.href = viewPdfUrl; a.download = "factura.pdf"; a.click(); }} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-medium hover:bg-green-700"><Download size={13} /> Descargar</button>
-                <button onClick={() => { const w = window.open(viewPdfUrl, "_blank"); if (w) w.onload = () => w.print(); }} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-medium hover:bg-blue-700"><Printer size={13} /> Imprimir</button>
+                <button onClick={() => { window.open(viewPdfUrl, "_blank"); }} className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-medium hover:bg-blue-700"><Printer size={13} /> Imprimir</button>
                 <button onClick={() => setViewPdfUrl(null)} className="p-1.5 rounded hover:bg-gray-200"><X size={16} className="text-gray-600" /></button>
               </div>
             </div>
-            <iframe src={viewPdfUrl} className="flex-1 w-full" title="Factura PDF" />
+            {/* Desktop: iframe | Mobile: download message */}
+            <iframe src={viewPdfUrl} className="hidden sm:block flex-1 w-full" title="Factura PDF" />
+            <div className="flex sm:hidden flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
+              <FileText size={48} className="text-gray-300" />
+              <p className="text-gray-500 text-sm">La vista previa de PDF no está disponible en dispositivos móviles.</p>
+              <button onClick={() => { const a = document.createElement("a"); a.href = viewPdfUrl; a.download = "factura.pdf"; a.click(); }} className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--color-brand-500)] text-white text-sm font-medium hover:opacity-90 transition-opacity"><Download size={16} /> Descargar PDF</button>
+            </div>
           </div>
         </div>
       )}

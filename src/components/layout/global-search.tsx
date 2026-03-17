@@ -184,10 +184,10 @@ export function GlobalSearch() {
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setOpen(false); setQuery(""); }} />
 
           {/* Panel de búsqueda */}
-          <div className="relative top-[15%] mx-auto w-full max-w-lg">
+          <div className="relative top-[10%] sm:top-[15%] mx-4 sm:mx-auto sm:w-full sm:max-w-lg">
             <div className="rounded-2xl bg-[var(--color-dashboard-surface)] border border-[var(--color-dashboard-border)] shadow-2xl overflow-hidden">
               {/* Input */}
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--color-dashboard-border)]">
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--color-dashboard-border)]">
                 <Search size={18} className="text-[var(--color-text-muted)] flex-shrink-0" />
                 <input
                   ref={inputRef}
@@ -201,13 +201,13 @@ export function GlobalSearch() {
                   autoComplete="off"
                 />
                 {query && (
-                  <button onClick={() => setQuery("")} className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]">
+                  <button onClick={() => setQuery("")} className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] p-0.5" aria-label="Limpiar búsqueda">
                     <X size={16} />
                   </button>
                 )}
-                <kbd className="px-1.5 py-0.5 rounded bg-[var(--color-dashboard-bg)] border border-[var(--color-dashboard-border)] text-[10px] font-mono text-[var(--color-text-muted)]">
-                  ESC
-                </kbd>
+                <button onClick={() => { setOpen(false); setQuery(""); }} className="p-1.5 rounded-lg hover:bg-[var(--color-dashboard-surface-hover)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors flex-shrink-0" aria-label="Cerrar búsqueda">
+                  <X size={18} />
+                </button>
               </div>
 
               {/* Resultados */}
