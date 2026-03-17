@@ -72,7 +72,7 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
   }, []);
 
   return (
-    <header
+    <header data-tour="header"
       className="sticky top-0 z-30 flex items-center gap-3 px-4 py-3 bg-[var(--color-dashboard-bg)] border-b border-[var(--color-dashboard-border)]"
       role="banner"
     >
@@ -90,12 +90,12 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
 
       {/* Controles derecha */}
       <div className="flex items-center gap-1 ml-auto">
-        <ThemeToggle />
+        <div data-tour="theme-toggle"><ThemeToggle /></div>
 
         {/* === NOTIFICACIONES REALTIME === */}
         <div className="relative" ref={notifRef}>
           <button
-            onClick={() => setNotifOpen(!notifOpen)}
+            data-tour="notifications" onClick={() => setNotifOpen(!notifOpen)}
             aria-label={`Notificaciones${unreadCount > 0 ? `, ${unreadCount} sin leer` : ""}`}
             aria-expanded={notifOpen}
             aria-haspopup="true"
@@ -184,7 +184,7 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
         {/* Avatar + Menú */}
         <div className="relative" ref={menuRef}>
           <button
-            onClick={() => setUserMenuOpen(!userMenuOpen)}
+            data-tour="user-menu" onClick={() => setUserMenuOpen(!userMenuOpen)}
             className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[var(--color-dashboard-surface)] transition-colors"
             aria-expanded={userMenuOpen}
             aria-haspopup="true"

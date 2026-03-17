@@ -1,5 +1,36 @@
 # Changelog
 
+## v3.1.0 — Interactive Guided Tour, Invoice Cancellation Research
+
+### Interactive Guided Tour (Onboarding)
+- **Replaced static tutorial** with an interactive guided tour that visually highlights actual UI elements using SVG spotlight overlay.
+- **7 tour steps** covering: sidebar navigation, header controls, main content area, theme toggle, notifications, user menu, and accessibility widget.
+- **Spotlight animation** — Each step highlights the target element with a pulsing amber border and darkens the rest of the screen.
+- **Tooltip positioning** — Automatically positions above, below, left or right of the highlighted element based on available space.
+- **Skip with countdown** — 5-second countdown before "Saltar" button becomes clickable.
+- **Progress bar** and step counter (1/7, 2/7, etc.) with Previous/Next navigation.
+- **Persisted in localStorage** — Only shows once per version. Updates automatically when `TOUR_VERSION` changes.
+- `data-tour` attributes added to: sidebar, header, main-content, theme-toggle, notifications, user-menu, accessibility widget.
+
+### Invoice Cancellation — Research & Architecture
+Based on comprehensive research of Ecuador SRI regulations (Resolución NAC-DGERCGC25-00000014, Ficha Técnica de Comprobantes Electrónicos v2.26), the following cancellation rules have been documented for implementation:
+
+**Sources:**
+- Servicio de Rentas Internas del Ecuador — Ficha Técnica Comprobantes Electrónicos, versión 2.26 (sri.gob.ec)
+- Resolución NAC-DGERCGC25-00000014 — Reglas de anulación de comprobantes electrónicos (junio 2025)
+- Resolución NAC-DGERCGC25-00000017 — Transmisión inmediata obligatoria (julio 2025)
+- Russell Bedford Ecuador — Análisis de cambios en anulación de comprobantes 2025
+- HLB Ecuador — Nuevas reglas para facturación electrónica y anulación
+
+**Planned for next release (v3.2.0):**
+- Online cancellation (until day 7 of following month)
+- Credit notes (XML v1.1.0, code 04) with receptor acceptance workflow
+- Consumer Final restrictions (no cancellation allowed)
+- Supporting documents attachment (return guides, cancellation acts)
+- Traceability reports (Invoice → Credit Note → Replacement Invoice)
+
+---
+
 ## v3.0.0 — Welcome Tutorial, Accessibility Widget (WCAG 2.1)
 
 ### Welcome Tutorial (Onboarding)

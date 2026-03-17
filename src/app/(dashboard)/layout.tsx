@@ -7,6 +7,7 @@ import { ToastProvider } from "@/components/ui";
 import { OperationGuardProvider } from "@/components/ui/operation-guard";
 import { UnsavedGuardProvider } from "@/components/ui/unsaved-guard";
 import { WelcomeTutorial } from "@/components/ui/welcome-tutorial";
+import { GuidedTour } from "@/components/ui/guided-tour";
 import { AccessibilityWidget } from "@/components/ui/accessibility-widget";
 
 /* ============================================
@@ -58,6 +59,7 @@ export default function DashboardLayout({
         <Header onMenuClick={() => setSidebarOpen(true)} />
         <main
           id="main-content"
+          data-tour="main-content"
           className="flex-1 overflow-y-auto p-4 md:p-6"
           role="main"
           aria-label="Contenido principal del dashboard"
@@ -67,10 +69,12 @@ export default function DashboardLayout({
       </div>
 
       {/* Accessibility Widget — WCAG 2.1 */}
-      <AccessibilityWidget />
+      <div data-tour="accessibility">
+        <AccessibilityWidget />
+      </div>
 
-      {/* Welcome Tutorial — Onboarding */}
-      <WelcomeTutorial />
+      {/* Guided Tour — Interactive Onboarding */}
+      <GuidedTour />
     </div>
     </UnsavedGuardProvider>
     </OperationGuardProvider>
