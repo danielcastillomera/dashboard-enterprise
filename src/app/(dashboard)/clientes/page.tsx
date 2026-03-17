@@ -217,8 +217,8 @@ export default function ClientesPage() {
       key: "actions", header: "Acciones", sortable: false,
       render: c => (
         <div className="flex gap-1">
-          <button onClick={() => handleEdit(c)} className="p-1.5 rounded hover:bg-[var(--color-brand-500)]/10 text-[var(--color-brand-500)]" title="Editar"><Edit2 size={14} /></button>
-          <button onClick={() => handleDelete(c.id)} className="p-1.5 rounded hover:bg-red-500/10 text-red-500" title="Eliminar"><Trash2 size={14} /></button>
+          <button onClick={() => handleEdit(c)} className="p-1.5 rounded hover:bg-[var(--color-brand-500)]/10 text-[var(--color-brand-500)]" title="Editar cliente"><Edit2 size={14} /></button>
+          <button onClick={() => handleDelete(c.id)} className="p-1.5 rounded hover:bg-red-500/10 text-red-500" title="Eliminar cliente"><Trash2 size={14} /></button>
         </div>
       ),
     },
@@ -332,8 +332,8 @@ export default function ClientesPage() {
                 <span className="ml-2 font-mono text-sm text-[var(--color-text-muted)]">{c.identificacion}</span>
               </div>
               <div className="flex gap-1">
-                <button onClick={() => handleEdit(c)} className="p-1.5 rounded hover:bg-[var(--color-brand-500)]/10 text-[var(--color-brand-500)]"><Edit2 size={14} /></button>
-                <button onClick={() => handleDelete(c.id)} className="p-1.5 rounded hover:bg-red-500/10 text-red-500"><Trash2 size={14} /></button>
+                <button onClick={() => handleEdit(c)} className="p-1.5 rounded hover:bg-[var(--color-brand-500)]/10 text-[var(--color-brand-500)]" title="Editar cliente"><Edit2 size={14} /></button>
+                <button onClick={() => handleDelete(c.id)} className="p-1.5 rounded hover:bg-red-500/10 text-red-500" title="Eliminar cliente"><Trash2 size={14} /></button>
               </div>
             </div>
             <p className="font-medium text-[var(--color-text-primary)]">{c.razonSocial}</p>

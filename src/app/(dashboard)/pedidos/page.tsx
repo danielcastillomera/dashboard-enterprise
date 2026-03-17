@@ -126,7 +126,7 @@ export default function PedidosPage() {
           <div className="relative w-full max-w-lg mx-4 bg-[var(--color-dashboard-surface)] rounded-2xl border border-[var(--color-dashboard-border)] shadow-2xl overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-dashboard-border)]">
               <h3 className="text-sm font-bold text-[var(--color-text-primary)]">DETALLE DE PEDIDO #{selectedOrder.id.slice(0,8).toUpperCase()}</h3>
-              <button onClick={() => setSelectedOrder(null)} className="p-1 rounded hover:bg-[var(--color-dashboard-surface-hover)]"><X size={16} /></button>
+              <button onClick={() => setSelectedOrder(null)} className="p-1 rounded hover:bg-[var(--color-dashboard-surface-hover)]" title="Cerrar detalle"><X size={16} /></button>
             </div>
             <div className="px-6 py-4 space-y-4">
               <div className="grid grid-cols-2 gap-4">

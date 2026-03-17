@@ -176,7 +176,7 @@ function downloadBlob(blob: Blob, filename: string): void {
   URL.revokeObjectURL(url);
 }
 
-/** Exportar datos a Excel (.xlsx) con SheetJS */
+/** Exportar datos a Excel (.xlsx) con SheetJS — estructura profesional */
 export async function exportToXLSX<T extends Record<string, unknown>>(
   data: T[],
   columns: { key: string; header: string }[],
@@ -185,19 +185,52 @@ export async function exportToXLSX<T extends Record<string, unknown>>(
 ): Promise<void> {
   if (data.length === 0) return;
   const XLSX = await import("xlsx");
-  const rows = data.map((row) =>
-    Object.fromEntries(
-      columns.map((col) => {
-        const val = row[col.key];
-        const str = val instanceof Date ? val.toLocaleDateString("es-EC") : (val ?? "");
-        return [col.header, str];
-      })
-    )
+
+  // Header info rows
+  const titleRow = [{ v: "Dashboard Enterprise — Reporte", t: "s" }];
+  const dateRow = [{ v: `Generado: ${new Date().toLocaleDateString("es-EC")} ${new Date().toLocaleTimeString("es-EC")}`, t: "s" }];
+  const totalRow = [{ v: `Total de registros: ${data.length}`, t: "s" }];
+
+  // Data rows
+  const dataRows = data.map((row) =>
+    columns.map((col) => {
+      const val = row[col.key];
+      if (val instanceof Date) return val.toLocaleDateString("es-EC");
+      if (typeof val === "number") return val;
+      return val ?? "";
+    })
   );
-  const ws = XLSX.utils.json_to_sheet(rows);
-  ws["!cols"] = columns.map((col) => ({
-    wch: Math.min(Math.max(col.header.length, ...data.map((r) => String(r[col.key] ?? "").length)) + 4, 40),
-  }));
+
+  // Build sheet array: title, date, blank, headers, data, blank, total
+  const sheetData = [
+    titleRow,
+    dateRow,
+    [],
+    columns.map((c) => c.header),
+    ...dataRows,
+    [],
+    totalRow,
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(sheetData);
+
+  // Auto-width columns
+  ws["!cols"] = columns.map((col, i) => {
+    const maxLen = Math.max(
+      col.header.length,
+      ...data.map((r) => String(r[col.key] ?? "").length)
+    );
+    return { wch: Math.min(maxLen + 4, 45) };
+  });
+
+  // Merge title row across all columns
+  if (columns.length > 1) {
+    ws["!merges"] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: columns.length - 1 } },
+      { s: { r: 1, c: 0 }, e: { r: 1, c: columns.length - 1 } },
+    ];
+  }
+
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, sheetName);
   XLSX.writeFile(wb, `${filename}.xlsx`);

@@ -125,23 +125,25 @@ export function Sidebar({
 
       {/* Footer del sidebar */}
       <div className="px-3 py-3 border-t border-[var(--color-dashboard-border)] space-y-1">
-        <Link
-          href="/configuracion"
-          onClick={() => onClose?.()}
-          className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-dashboard-surface)] transition-colors lg:hidden"
-        >
-          <Settings size={18} /> Configuración
-        </Link>
-        <form action={logoutAction} className="lg:hidden">
+        <form className="lg:hidden">
           <button
-            type="submit"
+            type="button"
+            onClick={async () => {
+              try {
+                const res = await fetch("/api/auth/logout", { method: "POST" });
+                if (res.ok) window.location.href = "/login";
+              } catch {
+                window.location.href = "/login";
+              }
+            }}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[var(--color-status-error)] hover:bg-[var(--color-status-error)]/10 transition-colors"
+            title="Cerrar sesión"
           >
             <LogOut size={18} /> Cerrar sesión
           </button>
         </form>
         <p className="text-[10px] text-[var(--color-text-muted)] text-center pt-1">
-          Sistema de Gestión v2.8.0
+          Sistema de Gestión v2.9.0
         </p>
       </div>
     </aside>

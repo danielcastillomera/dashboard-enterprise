@@ -137,7 +137,7 @@ export default function FacturacionPage() {
               <div className="flex gap-2 items-center">
                 <button onClick={() => { const a = document.createElement("a"); a.href = viewPdfUrl; a.download = "factura.pdf"; a.click(); }} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-medium hover:bg-green-700"><Download size={13} /> Descargar</button>
                 <button onClick={() => { window.open(viewPdfUrl, "_blank"); }} className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-medium hover:bg-blue-700"><Printer size={13} /> Imprimir</button>
-                <button onClick={() => setViewPdfUrl(null)} className="p-1.5 rounded hover:bg-gray-200"><X size={16} className="text-gray-600" /></button>
+                <button onClick={() => setViewPdfUrl(null)} className="p-1.5 rounded hover:bg-gray-200" title="Cerrar vista previa"><X size={16} className="text-gray-600" /></button>
               </div>
             </div>
             {/* Desktop: iframe | Mobile: download message */}
@@ -172,7 +172,7 @@ export default function FacturacionPage() {
         <Card>
           <div className="flex justify-between items-center mb-5">
             <h2 className="font-semibold text-[var(--color-text-primary)] text-lg">Nueva Factura Electrónica</h2>
-            <button onClick={() => setShowForm(false)} className="p-1 rounded hover:bg-[var(--color-dashboard-surface-hover)]"><X size={18} className="text-[var(--color-text-muted)]" /></button>
+            <button onClick={() => setShowForm(false)} className="p-1 rounded hover:bg-[var(--color-dashboard-surface-hover)]" title="Cerrar formulario"><X size={18} className="text-[var(--color-text-muted)]" /></button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
             <div>

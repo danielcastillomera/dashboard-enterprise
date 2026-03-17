@@ -1,5 +1,24 @@
 # Changelog
 
+## v2.9.0 — Logout Fix, Single Config, Tooltips, XLSX Pro, API Auth
+
+### Mobile Logout Fix
+- **Fixed logout error on mobile** — Replaced server action `<form action={logoutAction}>` with client-side `fetch("/api/auth/logout")` + redirect. Server actions with `redirect()` can fail on mobile browsers when the session is shared across devices.
+- **New API route** `src/app/api/auth/logout/route.ts` — Handles logout via POST request, always returns success (even if session already expired), then client redirects to `/login`.
+
+### Single Configuration Option
+- **Removed duplicate Configuración link** from sidebar footer — Configuración already exists as a sidebar nav module visible on all screen sizes. The footer now only shows "Cerrar sesión" (mobile) and version number.
+
+### Tooltips (title attributes)
+- **Added `title` attributes** to all icon buttons across the dashboard: Clientes (Editar, Eliminar), Pedidos (Cerrar detalle), Facturación (Cerrar vista previa, Cerrar formulario).
+- On **PC**: hovering over a button for ~1 second shows its name.
+- On **mobile**: long-pressing a button shows its name (native browser behavior with `title` attribute).
+
+### Professional XLSX Export
+- **Improved Excel structure** — Files now include: company title row, generation date, merged header cells, auto-width columns, record count footer. Professional format suitable for delivery to clients.
+
+---
+
 ## v2.8.0 — Mobile PDF Fix, Logout, Search UX, Security Policy, Wiki
 
 ### Mobile PDF Viewer Fix
