@@ -1,5 +1,38 @@
 # Changelog
 
+## v3.0.0 — Welcome Tutorial, Accessibility Widget (WCAG 2.1)
+
+### Welcome Tutorial (Onboarding)
+- **Interactive step-by-step guide** with 8 steps covering all dashboard modules.
+- **Progress indicators** — numbered steps with dot navigation, progress bar at top.
+- **Navigation** — Previous/Next buttons, click on dots to jump to any step.
+- **Skip button with countdown** — 5-second countdown before "Saltar" becomes clickable (prevents accidental skip).
+- **Appears only once** — Stored in localStorage with version key `v3.0.0`. Automatically reappears when the version changes (new features).
+- **"Comenzar" button** on last step to finish the tutorial.
+- **Responsive** — Works on mobile and desktop.
+- **Tips** — Some steps include a highlighted tip box with practical advice.
+
+### Accessibility Widget (WCAG 2.1 / 2.2)
+- **Floating accessibility button** — Bottom-left corner, amber circle with universal accessibility icon.
+- **Green dot indicator** when accessibility settings are active.
+- **5 options:**
+  - **Font size** — Normal / Large (112%) / Extra Large (125%)
+  - **High contrast** — Maximizes text/background contrast in both themes
+  - **Reduced motion** — Disables all animations and transitions
+  - **Highlight links** — Adds visible outline to all links and buttons
+  - **Large cursor** — Increases cursor size for better visibility
+- **Persists in localStorage** — Settings survive page refresh and sessions.
+- **Reset button** — Restores all settings to default.
+- **Theme-aware** — Adapts to light/dark mode automatically.
+- **CSS classes** applied to `<html>`: `a11y-high-contrast`, `a11y-reduced-motion`, `a11y-highlight-links`, `a11y-large-cursor`.
+
+### Files Added
+- `src/components/ui/welcome-tutorial.tsx` — Tutorial component
+- `src/components/ui/accessibility-widget.tsx` — A11y widget component
+- CSS classes in `globals.css` for accessibility modes
+
+---
+
 ## v2.9.0 — Logout Fix, Single Config, Tooltips, XLSX Pro, API Auth
 
 ### Mobile Logout Fix

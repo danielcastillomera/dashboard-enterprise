@@ -6,6 +6,8 @@ import { Header } from "@/components/layout/header";
 import { ToastProvider } from "@/components/ui";
 import { OperationGuardProvider } from "@/components/ui/operation-guard";
 import { UnsavedGuardProvider } from "@/components/ui/unsaved-guard";
+import { WelcomeTutorial } from "@/components/ui/welcome-tutorial";
+import { AccessibilityWidget } from "@/components/ui/accessibility-widget";
 
 /* ============================================
    DASHBOARD LAYOUT — ENTERPRISE + WCAG 2.2
@@ -63,6 +65,12 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
+
+      {/* Accessibility Widget — WCAG 2.1 */}
+      <AccessibilityWidget />
+
+      {/* Welcome Tutorial — Onboarding */}
+      <WelcomeTutorial />
     </div>
     </UnsavedGuardProvider>
     </OperationGuardProvider>
