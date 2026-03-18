@@ -1,255 +1,116 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { ChevronRight, ChevronLeft, X, Sparkles } from "lucide-react";
+import { useState, useEffect, useCallback, useLayoutEffect } from "react";
+import { ChevronRight, ChevronLeft, Sparkles, X } from "lucide-react";
 
-/* ============================================
-   GUIDED TOUR — INTERACTIVE ONBOARDING
-   
-   Recorre visualmente cada elemento del dashboard,
-   destacando paneles, botones y módulos con un 
-   spotlight animado.
-   
-   Basado en la investigación de mejores prácticas
-   de onboarding de Stripe, Shopify y Linear.
-   
-   Desarrollado por Daniel Fernando Castillo Mera
-   ============================================ */
+const TOURS = {
+  onboarding: {
+    version: "v3.2.0",
+    storageKey: "tour_onboarding",
+    steps: [
+      { target: "[data-tour='sidebar']", title: "Menú de navegación", description: "Acceda a todos los módulos: Panel, Ventas, Compras, Facturación, Inventario, Clientes y más. En móvil, abra el menú con el ícono de hamburguesa.", position: "right" as const },
+      { target: "[data-tour='header']", title: "Barra superior", description: "Contiene la búsqueda global (Ctrl+K), cambio de tema, notificaciones y el menú de usuario.", position: "bottom" as const },
+      { target: "[data-tour='main-content']", title: "Área de trabajo", description: "Aquí se muestra el módulo activo. El Panel de Control presenta indicadores clave, gráficos y alertas.", position: "bottom" as const },
+      { target: "[data-tour='theme-toggle']", title: "Tema visual", description: "Alterne entre modo claro, oscuro o automático. Todo el sistema se adapta al tema.", position: "bottom" as const },
+      { target: "[data-tour='accessibility']", title: "Accesibilidad (WCAG 2.1)", description: "Ajuste tamaño de fuente, contraste, animaciones y cursor. Se guardan automáticamente.", position: "top" as const },
+    ],
+  },
+  newFeatures: {
+    version: "v3.2.0-nf",
+    storageKey: "tour_features_v32",
+    steps: [
+      { target: "[data-tour='accessibility']", title: "Widget de accesibilidad", description: "Nuevo: ajuste fuente, contraste, animaciones y cursor. Cumple WCAG 2.1 Nivel AA.", position: "top" as const },
+      { target: "[data-tour='main-content']", title: "Exportar a Excel", description: "Nuevo: exporte datos en Excel (.xlsx), CSV y PDF desde cualquier módulo.", position: "bottom" as const },
+    ],
+  },
+};
 
-const TOUR_VERSION = "v3.1.0";
-const STORAGE_KEY = "dashboard_tour_completed";
-const SKIP_DELAY = 5;
-
-interface TourStep {
-  /** CSS selector del elemento a destacar */
-  target: string;
-  /** Título del paso */
-  title: string;
-  /** Descripción */
-  description: string;
-  /** Posición del tooltip relativo al elemento */
-  position: "top" | "bottom" | "left" | "right";
-}
-
-const STEPS: TourStep[] = [
-  {
-    target: "[data-tour='sidebar']",
-    title: "Menú de navegación",
-    description: "Desde aquí puede acceder a todos los módulos del sistema: Panel, Ventas, Compras, Facturación, Inventario y más.",
-    position: "right",
-  },
-  {
-    target: "[data-tour='header']",
-    title: "Barra superior",
-    description: "Contiene la búsqueda global (Ctrl+K), el cambio de tema claro/oscuro, notificaciones en tiempo real y el menú de usuario.",
-    position: "bottom",
-  },
-  {
-    target: "[data-tour='main-content']",
-    title: "Área de contenido",
-    description: "Aquí se muestra el módulo activo. El Panel de Control muestra los indicadores clave de su negocio: ingresos, ventas, inventario y gráficos.",
-    position: "top",
-  },
-  {
-    target: "[data-tour='theme-toggle']",
-    title: "Cambiar tema",
-    description: "Alterne entre modo claro, oscuro o automático del sistema. La transición es suave y todas las pantallas se adaptan.",
-    position: "bottom",
-  },
-  {
-    target: "[data-tour='notifications']",
-    title: "Notificaciones",
-    description: "Reciba alertas en tiempo real sobre nuevos pedidos, stock bajo y ventas registradas. El contador muestra las no leídas.",
-    position: "bottom",
-  },
-  {
-    target: "[data-tour='user-menu']",
-    title: "Menú de usuario",
-    description: "Acceda a Configuración del sistema o cierre su sesión de forma segura desde aquí.",
-    position: "bottom",
-  },
-  {
-    target: "[data-tour='accessibility']",
-    title: "Accesibilidad",
-    description: "Ajuste el tamaño de fuente, active alto contraste, reduzca animaciones o agrande el cursor. Cumple con WCAG 2.1.",
-    position: "top",
-  },
-];
+type TourId = keyof typeof TOURS;
+const SKIP_SEC = 5;
 
 export function GuidedTour() {
-  const [active, setActive] = useState(false);
+  const [tourId, setTourId] = useState<TourId | null>(null);
   const [step, setStep] = useState(0);
-  const [skipTimer, setSkipTimer] = useState(SKIP_DELAY);
+  const [skip, setSkip] = useState(SKIP_SEC);
   const [rect, setRect] = useState<DOMRect | null>(null);
-  const tooltipRef = useRef<HTMLDivElement>(null);
 
-  // Check if tour should show
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored !== TOUR_VERSION) {
-        // Small delay so the dashboard renders first
-        const t = setTimeout(() => setActive(true), 1500);
-        return () => clearTimeout(t);
-      }
-    } catch { /* */ }
+    const t = setTimeout(() => {
+      try {
+        const o = localStorage.getItem(TOURS.onboarding.storageKey);
+        if (o !== TOURS.onboarding.version) { setTourId("onboarding"); return; }
+        const n = localStorage.getItem(TOURS.newFeatures.storageKey);
+        if (n !== TOURS.newFeatures.version) { setTourId("newFeatures"); return; }
+      } catch { /* */ }
+    }, 1200);
+    return () => clearTimeout(t);
   }, []);
 
-  // Highlight target element
+  const tour = tourId ? TOURS[tourId] : null;
+  const steps = tour?.steps || [];
+  const cur = steps[step];
+
+  useLayoutEffect(() => {
+    if (!cur) { setRect(null); return; }
+    const m = () => { const el = document.querySelector(cur.target); setRect(el ? el.getBoundingClientRect() : null); };
+    m();
+    window.addEventListener("resize", m);
+    window.addEventListener("scroll", m, true);
+    return () => { window.removeEventListener("resize", m); window.removeEventListener("scroll", m, true); };
+  }, [cur]);
+
   useEffect(() => {
-    if (!active) return;
-    const current = STEPS[step];
-    if (!current) return;
-
-    const findEl = () => {
-      const el = document.querySelector(current.target);
-      if (el) {
-        const r = el.getBoundingClientRect();
-        setRect(r);
-        el.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      } else {
-        setRect(null);
-      }
-    };
-
-    findEl();
-    // Re-measure on resize
-    window.addEventListener("resize", findEl);
-    return () => window.removeEventListener("resize", findEl);
-  }, [active, step]);
-
-  // Skip countdown
-  useEffect(() => {
-    if (!active) return;
-    setSkipTimer(SKIP_DELAY);
-    const iv = setInterval(() => setSkipTimer((p) => (p <= 1 ? 0 : p - 1)), 1000);
+    if (!tourId) return;
+    setSkip(SKIP_SEC);
+    const iv = setInterval(() => setSkip(p => p <= 1 ? 0 : p - 1), 1000);
     return () => clearInterval(iv);
-  }, [active]);
+  }, [tourId]);
 
-  const finish = useCallback(() => {
-    try { localStorage.setItem(STORAGE_KEY, TOUR_VERSION); } catch { /* */ }
-    setActive(false);
-  }, []);
+  const done = useCallback(() => {
+    if (tour) try { localStorage.setItem(tour.storageKey, tour.version); } catch { /* */ }
+    setTourId(null); setStep(0);
+  }, [tour]);
 
-  if (!active) return null;
+  if (!tourId || !cur) return null;
 
-  const current = STEPS[step];
-  const isLast = step === STEPS.length - 1;
-  const progress = ((step + 1) / STEPS.length) * 100;
+  const isLast = step === steps.length - 1;
+  const pct = ((step + 1) / steps.length) * 100;
+  const s = rect ? { x: rect.left - 8, y: rect.top - 8, w: rect.width + 16, h: rect.height + 16 } : null;
 
-  // Calculate tooltip position
-  const getTooltipStyle = (): React.CSSProperties => {
-    if (!rect) return { top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
-    const pad = 16;
-    switch (current.position) {
-      case "bottom":
-        return { top: rect.bottom + pad, left: Math.max(16, Math.min(rect.left, window.innerWidth - 340)), maxWidth: "calc(100vw - 32px)" };
-      case "top":
-        return { bottom: window.innerHeight - rect.top + pad, left: Math.max(16, Math.min(rect.left, window.innerWidth - 340)), maxWidth: "calc(100vw - 32px)" };
-      case "right":
-        return { top: rect.top, left: Math.min(rect.right + pad, window.innerWidth - 340), maxWidth: "calc(100vw - 32px)" };
-      case "left":
-        return { top: rect.top, right: window.innerWidth - rect.left + pad, maxWidth: "calc(100vw - 32px)" };
-      default:
-        return { top: rect.bottom + pad, left: 16 };
-    }
+  const pos = (): React.CSSProperties => {
+    if (!rect) return { top: "35%", left: "50%", transform: "translateX(-50%)" };
+    const g = 14, sl = (l: number) => Math.max(12, Math.min(l, window.innerWidth - 330));
+    if (cur.position === "bottom") return { top: rect.bottom + g, left: sl(rect.left) };
+    if (cur.position === "top") return { bottom: window.innerHeight - rect.top + g, left: sl(rect.left) };
+    if (cur.position === "right") return { top: Math.max(12, rect.top), left: Math.min(rect.right + g, window.innerWidth - 330) };
+    return { top: Math.max(12, rect.top), right: window.innerWidth - rect.left + g };
   };
 
   return (
-    <div className="fixed inset-0 z-[90]">
-      {/* Dark overlay with spotlight cutout */}
-      <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: "none" }}>
-        <defs>
-          <mask id="tour-mask">
-            <rect width="100%" height="100%" fill="white" />
-            {rect && (
-              <rect
-                x={rect.left - 6}
-                y={rect.top - 6}
-                width={rect.width + 12}
-                height={rect.height + 12}
-                rx={12}
-                fill="black"
-              />
-            )}
-          </mask>
-        </defs>
-        <rect
-          width="100%"
-          height="100%"
-          fill="rgba(0,0,0,0.6)"
-          mask="url(#tour-mask)"
-          style={{ pointerEvents: "auto" }}
-          onClick={finish}
-        />
+    <div className="fixed inset-0 z-[90]" role="dialog" aria-modal="true">
+      <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: "auto" }}>
+        <defs><mask id="sm"><rect width="100%" height="100%" fill="white" />{s && <rect x={s.x} y={s.y} width={s.w} height={s.h} rx={14} fill="black" />}</mask></defs>
+        <rect width="100%" height="100%" fill="rgba(0,0,0,0.65)" mask="url(#sm)" />
       </svg>
-
-      {/* Highlight border around target */}
-      {rect && (
-        <div
-          className="absolute border-2 border-[var(--color-brand-500)] rounded-xl pointer-events-none animate-pulse"
-          style={{
-            top: rect.top - 6,
-            left: rect.left - 6,
-            width: rect.width + 12,
-            height: rect.height + 12,
-          }}
-        />
-      )}
-
-      {/* Tooltip */}
-      <div
-        ref={tooltipRef}
-        className="absolute z-[91] w-80 max-w-[calc(100vw-2rem)] bg-[var(--color-dashboard-surface)] border border-[var(--color-dashboard-border)] rounded-2xl shadow-2xl overflow-hidden"
-        style={getTooltipStyle()}
-      >
-        {/* Progress */}
-        <div className="h-1 bg-[var(--color-dashboard-border)]">
-          <div className="h-full bg-[var(--color-brand-500)] transition-all duration-500" style={{ width: `${progress}%` }} />
-        </div>
-
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-medium text-[var(--color-text-muted)]">
-              {step + 1} / {STEPS.length}
-            </span>
-            <button
-              onClick={finish}
-              disabled={skipTimer > 0}
-              className={`text-xs px-2 py-1 rounded-md transition-colors ${
-                skipTimer > 0
-                  ? "text-[var(--color-text-muted)] opacity-50 cursor-not-allowed"
-                  : "text-[var(--color-text-secondary)] hover:bg-[var(--color-dashboard-surface-hover)]"
-              }`}
-            >
-              {skipTimer > 0 ? `Saltar (${skipTimer}s)` : <><X size={12} className="inline" /> Saltar</>}
-            </button>
+      {s && <div className="absolute border-2 border-[var(--color-brand-500)] rounded-2xl pointer-events-none animate-pulse" style={{ top: s.y, left: s.x, width: s.w, height: s.h }} />}
+      <div className="absolute z-[91] w-80 max-w-[calc(100vw-1.5rem)]" style={pos()}>
+        <div className="bg-[var(--color-dashboard-surface)] border border-[var(--color-dashboard-border)] rounded-2xl shadow-2xl overflow-hidden">
+          <div className="h-1 bg-[var(--color-dashboard-border)]"><div className="h-full bg-[var(--color-brand-500)] transition-all duration-500" style={{ width: `${pct}%` }} /></div>
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wide">Paso {step + 1} de {steps.length}</span>
+              <button onClick={done} disabled={skip > 0} className={`text-xs px-2 py-1 rounded-md ${skip > 0 ? "text-[var(--color-text-muted)] opacity-40 cursor-not-allowed" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-dashboard-surface-hover)]"}`}>
+                {skip > 0 ? `Omitir (${skip}s)` : <span className="flex items-center gap-1"><X size={12} /> Omitir</span>}
+              </button>
+            </div>
+            <h3 className="text-sm font-bold text-[var(--color-text-primary)] mb-1.5">{cur.title}</h3>
+            <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">{cur.description}</p>
           </div>
-
-          <h3 className="text-sm font-bold text-[var(--color-text-primary)] mb-1">{current.title}</h3>
-          <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">{current.description}</p>
-        </div>
-
-        {/* Nav */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--color-dashboard-border)] bg-[var(--color-dashboard-bg)]/50">
-          <button
-            onClick={() => setStep((s) => Math.max(0, s - 1))}
-            disabled={step === 0}
-            className={`flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${
-              step === 0 ? "text-[var(--color-text-muted)] cursor-not-allowed" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-dashboard-surface)]"
-            }`}
-          >
-            <ChevronLeft size={14} /> Anterior
-          </button>
-          {isLast ? (
-            <button onClick={finish} className="flex items-center gap-1 text-xs font-semibold px-4 py-1.5 rounded-lg bg-[var(--color-brand-500)] text-white hover:opacity-90">
-              Comenzar <Sparkles size={14} />
-            </button>
-          ) : (
-            <button onClick={() => setStep((s) => s + 1)} className="flex items-center gap-1 text-xs font-semibold px-4 py-1.5 rounded-lg bg-[var(--color-brand-500)] text-white hover:opacity-90">
-              Siguiente <ChevronRight size={14} />
-            </button>
-          )}
+          <div className="flex justify-center gap-1.5 pb-3">{steps.map((_, i) => <button key={i} onClick={() => setStep(i)} className={`rounded-full transition-all ${i === step ? "w-5 h-1.5 bg-[var(--color-brand-500)]" : i < step ? "w-1.5 h-1.5 bg-[var(--color-brand-500)]/40" : "w-1.5 h-1.5 bg-[var(--color-dashboard-border)]"}`} aria-label={`Paso ${i + 1}`} />)}</div>
+          <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--color-dashboard-border)] bg-[var(--color-dashboard-bg)]/50">
+            <button onClick={() => setStep(p => Math.max(0, p - 1))} disabled={step === 0} className={`flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg ${step === 0 ? "text-[var(--color-text-muted)] cursor-not-allowed" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-dashboard-surface)]"}`}><ChevronLeft size={14} /> Anterior</button>
+            <button onClick={isLast ? done : () => setStep(p => p + 1)} className="flex items-center gap-1 text-xs font-semibold px-4 py-1.5 rounded-lg bg-[var(--color-brand-500)] text-white hover:opacity-90">{isLast ? <>Comenzar <Sparkles size={14} /></> : <>Siguiente <ChevronRight size={14} /></>}</button>
+          </div>
         </div>
       </div>
     </div>

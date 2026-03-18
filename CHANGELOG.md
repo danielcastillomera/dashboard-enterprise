@@ -1,5 +1,30 @@
 # Changelog
 
+## v3.2.0 — Tour Fix, Mobile UX, Accessibility Position
+
+### Guided Tour Rewrite
+- **Fixed spotlight rendering** — SVG mask now correctly creates a cutout around target elements on both PC and mobile.
+- **No dismiss on outside click** — Tour overlay blocks all interaction until user completes or skips. Prevents accidental closure.
+- **Skip countdown** — 5-second countdown before "Omitir" button becomes clickable.
+- **New features tour** — Separate tour that activates for ALL users (new and existing) when new functionality is released. Controlled by version key in localStorage.
+- **Two independent tours:**
+  - `onboarding` — Full 5-step walkthrough for new users.
+  - `newFeatures` — Shorter tour highlighting recently added features.
+
+### Mobile User Menu
+- **Dropdown chevron now visible on mobile** — Previously hidden with `sm:block`, the chevron arrow next to the avatar is now always visible so mobile users know it's a tappable menu.
+
+### Accessibility Widget Position
+- **Moved button higher** — From `bottom-4` to `bottom-16` so it no longer overlaps the sidebar version text.
+- **Panel repositioned** — Opens above the button without overlapping navigation elements.
+
+### Research Sources
+- Servicio de Rentas Internas del Ecuador — Ficha Técnica de Comprobantes Electrónicos v2.26 (sri.gob.ec)
+- Resolución NAC-DGERCGC25-00000014 — Reglas de anulación de comprobantes electrónicos
+- Web Content Accessibility Guidelines (WCAG) 2.1 — W3C Recommendation (w3.org/WAI/WCAG21)
+
+---
+
 ## v3.1.0 — Interactive Guided Tour, Invoice Cancellation Research
 
 ### Interactive Guided Tour (Onboarding)

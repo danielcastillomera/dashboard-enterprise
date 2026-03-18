@@ -144,7 +144,7 @@ export function Sidebar({
           </button>
         </form>
         <p className="text-[10px] text-[var(--color-text-muted)] text-center pt-1">
-          Sistema de Gestión v3.1.0
+          Sistema de Gestión v3.2.0
         </p>
       </div>
     </aside>

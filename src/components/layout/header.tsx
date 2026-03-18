@@ -197,7 +197,7 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
               <p className="text-sm font-semibold text-[var(--color-text-primary)] leading-tight">Administrador</p>
               <p className="text-[10px] text-[var(--color-text-muted)]">admin</p>
             </div>
-            <ChevronDown size={14} className="hidden sm:block text-[var(--color-text-muted)]" />
+            <ChevronDown size={14} className="text-[var(--color-text-muted)]" />
           </button>
 
           {userMenuOpen && (

@@ -105,7 +105,7 @@ export function AccessibilityWidget() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed bottom-4 left-4 z-[60] w-12 h-12 rounded-full bg-[var(--color-brand-500)] text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
+        className="fixed bottom-16 left-4 z-[60] w-12 h-12 rounded-full bg-[var(--color-brand-500)] text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
         aria-label="Abrir menú de accesibilidad"
         title="Accesibilidad"
       >
@@ -126,7 +126,7 @@ export function AccessibilityWidget() {
         <>
           <div className="fixed inset-0 z-[60]" onClick={() => setOpen(false)} />
           <div
-            className="fixed bottom-20 left-4 z-[65] w-72 max-w-[calc(100vw-2rem)] rounded-2xl bg-[var(--color-dashboard-surface)] border border-[var(--color-dashboard-border)] shadow-2xl overflow-hidden"
+            className="fixed bottom-32 left-4 z-[65] w-72 max-w-[calc(100vw-2rem)] rounded-2xl bg-[var(--color-dashboard-surface)] border border-[var(--color-dashboard-border)] shadow-2xl overflow-hidden"
             role="dialog"
             aria-label="Opciones de accesibilidad"
           >
