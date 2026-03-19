@@ -77,14 +77,7 @@ export function GuidedTour() {
   const pct = ((step + 1) / steps.length) * 100;
   const s = rect ? { x: rect.left - 8, y: rect.top - 8, w: rect.width + 16, h: rect.height + 16 } : null;
 
-  const pos = (): React.CSSProperties => {
-    if (!rect) return { top: "35%", left: "50%", transform: "translateX(-50%)" };
-    const g = 14, sl = (l: number) => Math.max(12, Math.min(l, window.innerWidth - 330));
-    if (cur.position === "bottom") return { top: rect.bottom + g, left: sl(rect.left) };
-    if (cur.position === "top") return { bottom: window.innerHeight - rect.top + g, left: sl(rect.left) };
-    if (cur.position === "right") return { top: Math.max(12, rect.top), left: Math.min(rect.right + g, window.innerWidth - 330) };
-    return { top: Math.max(12, rect.top), right: window.innerWidth - rect.left + g };
-  };
+  // Tooltip is fixed-centered at bottom of viewport — always visible
 
   return (
     <div className="fixed inset-0 z-[90]" role="dialog" aria-modal="true">
@@ -93,7 +86,8 @@ export function GuidedTour() {
         <rect width="100%" height="100%" fill="rgba(0,0,0,0.65)" mask="url(#sm)" />
       </svg>
       {s && <div className="absolute border-2 border-[var(--color-brand-500)] rounded-2xl pointer-events-none animate-pulse" style={{ top: s.y, left: s.x, width: s.w, height: s.h }} />}
-      <div className="absolute z-[91] w-80 max-w-[calc(100vw-1.5rem)]" style={pos()}>
+      {/* Tooltip — always centered at bottom of viewport */}
+      <div className="fixed z-[91] bottom-6 left-1/2 -translate-x-1/2 w-80 max-w-[calc(100vw-2rem)]">
         <div className="bg-[var(--color-dashboard-surface)] border border-[var(--color-dashboard-border)] rounded-2xl shadow-2xl overflow-hidden">
           <div className="h-1 bg-[var(--color-dashboard-border)]"><div className="h-full bg-[var(--color-brand-500)] transition-all duration-500" style={{ width: `${pct}%` }} /></div>
           <div className="p-4">

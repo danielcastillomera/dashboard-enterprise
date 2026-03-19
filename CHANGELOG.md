@@ -1,5 +1,31 @@
 # Changelog
 
+## v3.3.0 — Tour Centered, Critical Action Audit, beforeunload Protection
+
+### Guided Tour — Centered Tooltip
+- **Tooltip now fixed at bottom-center of viewport** — Always visible regardless of which element is highlighted. Solves the issue where step 3 tooltip was hidden behind the spotlight area.
+- Uses `fixed bottom-6 left-1/2 -translate-x-1/2` for consistent positioning on PC and mobile.
+
+### Critical Action Audit System
+- **New component `CriticalActionDialog`** — Modal dialog that requires:
+  - **Operator selection** (dropdown: Administrador, Operador 1, Operador 2, Supervisor)
+  - **Reason/justification** (textarea, 5-100 characters, mandatory)
+- **Audit log** — Every critical action is recorded in localStorage with: timestamp, action type, target, reason, and operator name.
+- **Integrated in Clientes** — Deleting a client now requires justification through the dialog (replaces native `confirm()`).
+- **Stores up to 500 entries** in `dashboard_audit_log` localStorage key.
+
+Based on research of enterprise audit trail requirements:
+- ISO 27001 Information Security Management — Audit logging requirements (iso.org)
+- LOPDP Ecuador Art. 37 — Registro de actividades de tratamiento de datos personales
+
+### beforeunload Protection
+- Already implemented via `UnsavedGuardProvider` — When a form has unsaved changes (`setDirty()`), the browser shows a native confirmation dialog before allowing page refresh or tab close. Works on all browsers (Chrome, Firefox, Edge, Safari).
+
+### Files Added
+- `src/components/ui/critical-action-dialog.tsx` — Dialog + audit log utilities
+
+---
+
 ## v3.2.0 — Tour Fix, Mobile UX, Accessibility Position
 
 ### Guided Tour Rewrite

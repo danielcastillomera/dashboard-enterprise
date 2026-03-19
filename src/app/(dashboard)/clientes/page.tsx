@@ -7,6 +7,7 @@ import { DataTable, type Column } from "@/components/ui/data-table";
 import { useToast } from "@/components/ui/toast";
 import { FullScreenLoader } from "@/components/ui/fullscreen-loader";
 import { useUnsavedGuard } from "@/components/ui/unsaved-guard";
+import { CriticalActionDialog } from "@/components/ui/critical-action-dialog";
 import { useData, invalidateCache } from "@/lib/hooks/use-data";
 import { TIPOS_IDENTIFICACION } from "@/lib/billing/clave-acceso";
 
@@ -114,6 +115,7 @@ export default function ClientesPage() {
   const [form, setForm] = useState<FormData>({ ...EMPTY_FORM });
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
 
   const resetForm = useCallback(() => {
     setForm({ ...EMPTY_FORM });
@@ -185,15 +187,22 @@ export default function ClientesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("¿Eliminar este cliente?")) return;
+    // Find the customer to show in dialog
+    const customer = customers.find(c => c.id === id);
+    if (customer) setDeleteTarget(customer);
+  };
+
+  const executeDelete = async (reason: string, operator: string) => {
+    if (!deleteTarget) return;
     try {
-      await fetch("/api/customers", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+      await fetch("/api/customers", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: deleteTarget.id }) });
       addToast({ message: "Cliente eliminado", variant: "success" });
       invalidateCache("/api/customers");
       mutate();
     } catch {
       addToast({ message: "Error al eliminar", variant: "error" });
     }
+    setDeleteTarget(null);
   };
 
   const filtered = customers.filter(c =>
@@ -345,6 +354,20 @@ export default function ClientesPage() {
           </Card>
         ))}
       </div>
+
+      {/* Critical Action Dialog for delete */}
+      <CriticalActionDialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={executeDelete}
+        title={`Eliminar cliente: ${deleteTarget?.razonSocial || ""}`}
+        description={`Esta acción eliminará al cliente "${deleteTarget?.razonSocial || ""}" (${deleteTarget?.identificacion || ""}). Esta operación queda registrada en el historial de auditoría.`}
+        actionLabel="Eliminar cliente"
+        actionType="ELIMINAR_CLIENTE"
+        targetType="Cliente"
+        targetId={deleteTarget?.id || ""}
+        targetName={deleteTarget?.razonSocial || ""}
+      />
     </div>
   );
 }
