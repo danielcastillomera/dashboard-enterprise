@@ -1,4 +1,50 @@
-# Changelog
+# Registro de Cambios / Changelog
+
+---
+
+## v3.4.0 — Tutorial Inteligente, Cierre por Inactividad, Auditoría
+
+### Tutorial Interactivo — Reescrito
+- **Tooltip al lado del elemento** — El cuadro del tutorial ahora se posiciona inteligentemente junto a cada elemento destacado (derecha, izquierda, arriba o abajo) según el espacio disponible en pantalla. Si no hay espacio suficiente, se centra en la pantalla.
+- **No se cierra al hacer clic afuera** — El overlay bloquea toda interacción hasta completar u omitir el tutorial.
+- **Dos tours independientes:**
+  - `onboarding` — 5 pasos para operadores nuevos.
+  - `newFeatures` — Tour corto de nuevas funcionalidades (para todos los operadores).
+- **Cuenta regresiva** de 5 segundos antes de poder omitir.
+- **Compatible con PC y dispositivos móviles.**
+
+### Cierre de Sesión por Inactividad (OWASP)
+- **15 minutos** de inactividad cierran la sesión automáticamente.
+- **Advertencia** 2 minutos antes del cierre con cuenta regresiva visual.
+- **Botón "Continuar trabajando"** para resetear el temporizador.
+- Monitorea: movimiento del mouse, teclado, scroll, toque en pantalla.
+- Basado en estándares internacionales:
+  - OWASP Session Management Cheat Sheet (owasp.org)
+  - NIST SP 800-63B §7.1 — Session Timeouts (nist.gov)
+
+### Auditoría de Operaciones Críticas
+- Integrado en **Clientes** — Eliminar un cliente requiere motivo y operador.
+- Registro almacenado con: fecha/hora, tipo de acción, elemento afectado, motivo, operador responsable.
+- Basado en:
+  - ISO 27001 — Requisitos de registro de auditoría (iso.org)
+  - LOPDP Ecuador Art. 37 — Registro de actividades de tratamiento
+
+### Archivos agregados
+- `src/components/ui/guided-tour.tsx` — Tutorial interactivo v3
+- `src/components/ui/inactivity-timeout.tsx` — Cierre por inactividad
+- `src/components/ui/critical-action-dialog.tsx` — Diálogo de operaciones críticas
+
+---
+
+### English Summary / Resumen en Inglés
+
+**v3.4.0 — Smart Tour, Inactivity Logout, Audit Trail**
+
+- **Guided Tour rewrite** — Tooltip now positions smartly next to each highlighted element (right/left/top/bottom) based on available viewport space. Does not dismiss on outside click.
+- **Inactivity timeout** — Auto-logout after 15 minutes of inactivity per OWASP and NIST SP 800-63B standards. Shows warning 2 minutes before with countdown timer.
+- **Critical action audit** — Delete operations now require mandatory reason (5-100 chars) and operator selection. Logged with timestamp for audit trail per ISO 27001.
+
+---
 
 ## v3.3.0 — Tour Centered, Critical Action Audit, beforeunload Protection
 

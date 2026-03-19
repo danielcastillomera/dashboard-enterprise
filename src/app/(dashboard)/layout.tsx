@@ -9,6 +9,7 @@ import { UnsavedGuardProvider } from "@/components/ui/unsaved-guard";
 import { WelcomeTutorial } from "@/components/ui/welcome-tutorial";
 import { GuidedTour } from "@/components/ui/guided-tour";
 import { AccessibilityWidget } from "@/components/ui/accessibility-widget";
+import { InactivityTimeout } from "@/components/ui/inactivity-timeout";
 
 /* ============================================
    DASHBOARD LAYOUT — ENTERPRISE + WCAG 2.2
@@ -75,6 +76,9 @@ export default function DashboardLayout({
 
       {/* Guided Tour — Interactive Onboarding */}
       <GuidedTour />
+
+      {/* Inactivity Timeout — OWASP 15min */}
+      <InactivityTimeout />
     </div>
     </UnsavedGuardProvider>
     </OperationGuardProvider>
