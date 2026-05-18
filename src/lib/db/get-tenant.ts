@@ -32,14 +32,7 @@ export async function getCurrentTenantId(): Promise<string> {
   });
 
   if (!profile) {
-    // Fallback: si no hay perfil, buscar el primer tenant (setup inicial)
-    const tenant = await prisma.tenant.findFirst({
-      select: { id: true },
-    });
-    if (tenant) {
-      return tenant.id;
-    }
-    throw new Error("No se encontró perfil ni tenant para el usuario");
+    throw new Error("No se encontró perfil para el usuario autenticado");
   }
 
   return profile.tenantId;
