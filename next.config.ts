@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
         source: "/(.*)",
         headers: [
           // Prevent clickjacking
-          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Frame-Options", value: "DENY" },
           // Prevent MIME sniffing
           { key: "X-Content-Type-Options", value: "nosniff" },
           // XSS protection (legacy browsers)
@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
           // Permissions policy — disable unused browser features
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), interest-cohort=()" },
           // Strict transport security (HTTPS only)
-          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
           // Content security policy
           {
             key: "Content-Security-Policy",
@@ -36,7 +36,7 @@ const nextConfig: NextConfig = {
               "font-src 'self' data:",
               "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.resend.com",
               "frame-src 'self' blob:",
-              "frame-ancestors 'self'",
+              "frame-ancestors 'none'",
             ].join("; "),
           },
         ],
