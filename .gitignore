@@ -18,9 +18,16 @@ dist/
 # ---- Environment & Secrets ----
 .env
 .env.local
+.env.development
 .env.development.local
 .env.test.local
+.env.production
 .env.production.local
+.env.staging
+*.pem
+*.key
+*.p12
+*.pfx
 
 # ---- Prisma ----
 prisma/*.db
